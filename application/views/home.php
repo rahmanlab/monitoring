@@ -304,8 +304,8 @@
                         <li <?php if ($konten=='vdokumen') {echo "class=active";} ?>>
                             <a href="<?php echo base_url('home/dokumen');?>"><i class="fa fa-file-archive-o"></i><span> Managemen Dokumen</span></a>
                         </li>
-                        <li <?php if ($konten=='vupdatepassword') {echo "class=active";} ?>>
-                            <a href="javascript:history.back()"><i class="fa fa-arrow-left"></i><span> Kembali</span></a>
+                        <li <?php if ($konten=='vuploadtiket') {echo "class=active";} ?>>
+                            <a href="<?php echo base_url('cexcell');?>"><i class="fa fa-file-archive-o"></i><span> Upload Tiket ITSM</span></a>
                         </li>
                     </ul>
                 </section>
