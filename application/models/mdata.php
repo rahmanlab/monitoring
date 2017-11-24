@@ -5,6 +5,12 @@ class mdata extends CI_Model {
     // function __construct()
     // {
     //     parent::__construct();
+    //     // set koneksi
+    //     $this->pblmig_db = $this->load->database('pblmig', true);
+    //     if (!$this->pblmig_db) {
+    //         $m = oci_error();
+    //         trigger_error(htmlentities($m['message']), E_USER_ERROR);
+    //     }
     // }  
 
 

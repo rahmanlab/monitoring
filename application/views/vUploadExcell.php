@@ -4,7 +4,7 @@
     <div class="row">
         <div class="col-md-12">
             <div class="box box-primary">
-                <form id="form_upload" class="form-horizontal" method="POST" enctype="multipart/form-data" >
+                <form id="form_upload" class="form-horizontal" method="POST" enctype="multipart/form-data" action="<?php echo base_url('cexcell/importDataExcell')?>">
                     <div class="box-body">
                         <div class="row">
                             <div class="col-md-6">
@@ -36,7 +36,7 @@
                                     <th width="10%">CASEOWNER</th>
                                     <th width="10%">CASEOWNEREMAIL</th>
                                     <th width="5%">COMPLAINANT</th>
-                                    <th width="10%">COMPLAINANEMAIL</th>
+                                    <th width="10%">COMPLAINANTEMAIL</th>
                                     <th width="15%">SUMMARY</th>
                                     <th width="5%">SOURCE</th>				
                                     <th width="5%">CALLTYPE</th>				
@@ -52,11 +52,11 @@
 							//foreach($row = oci_fetch_array($stid, OCI_ASSOC+OCI_RETURN_LOBS)){	
 							?>
 							<tbody>
-							<td><?php echo $itsm['INCIDENT'];?></td>
+							    <td><?php echo number_format($itsm['INCIDENT'], 0, '', '');?></td>
 								<td><?php echo $itsm['CASEOWNER'];?></td>
 								<td><?php echo $itsm['CASEOWNEREMAIL'];?></td>
 								<td><?php echo $itsm['COMPLAINANT'];?></td>
-								<td><?php echo $itsm['COMPLAINANEMAIL'];?></td>
+								<td><?php echo $itsm['COMPLAINANTEMAIL'];?></td>
 								<td><?php echo $itsm['SUMMARY'];?></td>
 								<td><?php echo $itsm['SOURCE'];?></td>
 								<td><?php echo $itsm['CALLTYPE'];?></td>
