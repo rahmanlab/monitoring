@@ -55,6 +55,16 @@ class cexcell extends CI_Controller {
 				foreach ($sheet->getRowIterator() as $row) {
 					
 					if ($i >= 1){
+						
+						$CREATEDON = new DateTime("1899-12-30 + ". round($row[16] * 86400) . " seconds");
+						$RESOLVEDON = new DateTime("1899-12-30 + ". round($row[18] * 86400) . " seconds");
+						$MODIFIEDON = new DateTime("1899-12-30 + ". round($row[20] * 86400) . " seconds");
+						$CLOSEDDATE = new DateTime("1899-12-30 + ". round($row[22] * 86400) . " seconds");
+						$SLALEVEL1 = new DateTime("1899-12-30 + ". round($row[24] * 86400) . " seconds");
+						$SLALEVEL2 = new DateTime("1899-12-30 + ". round($row[25] * 86400) . " seconds");
+						$SLALEVEL3 = new DateTime("1899-12-30 + ". round($row[26] * 86400) . " seconds");
+						$ASSIGNEDON = new DateTime("1899-12-30 + ". round($row[31] * 86400) . " seconds");
+
 						$params[] = array(
 							'INCIDENT' => $row[0],
 							'CASEOWNER' => $row[1],
@@ -72,22 +82,22 @@ class cexcell extends CI_Controller {
 							'CAUSE' => $row[13],
 							'RESOLUTION' => $row[14],
 							'CREATEDBY' => $row[15],
-							'CREATEDON' => $row[16],
+							'CREATEDON' => $CREATEDON->format("d/m/Y H:i:s"),
 							'RESOLVEDBY' => $row[17],
-							'RESOLVEDON' => $row[18],
+							'RESOLVEDON' => $RESOLVEDON->format("d/m/Y H:i:s"),
 							'MODIFIEDBY' => $row[19],
-							'MODIFIEDON' => $row[20],
+							'MODIFIEDON' => $MODIFIEDON->format("d/m/Y H:i:s"),
 							'CLOSEDBY' => $row[21],
-							'CLOSEDDATE' => $row[22],
+							'CLOSEDDATE' => $CLOSEDDATE->format("d/m/Y H:i:s"),
 							'SLACLASS' => $row[23],
-							'SLALEVEL1' => $row[24],
-							'SLALEVEL2' => $row[25],
-							'SLALEVEL3' => $row[26],
+							'SLALEVEL1' => $SLALEVEL1->format("d/m/Y H:i:s"),
+							'SLALEVEL2' => $SLALEVEL2->format("d/m/Y H:i:s"),
+							'SLALEVEL3' => $SLALEVEL3->format("d/m/Y H:i:s"),
 							'PRIORITY' => $row[27],
 							'PRIORITYNAME' => $row[28],
 							'ASSIGNTO' => $row[29],
 							'FIRSTCALLRESOLUTION' => $row[30],
-							'ASSIGNEDON' => $row[31],
+							'ASSIGNEDON' => $ASSIGNEDON->format("d/m/Y H:i:s"),
 							//'TGLUPLOAD' => $row[32],
 							'UPLOADBY' => $this->session->userdata('id_user'),
 						);

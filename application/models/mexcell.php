@@ -204,9 +204,19 @@ class mexcell extends CI_Model {
         }
 
         foreach ($params as $dt) {
+
+            // conversi
+            $CREATEDON = ($dt['CREATEDON'] == '30/12/1899 00:00:00') ? 'NULL' : "to_date('". $dt['CREATEDON'] ."', 'DD/MM/YYYY HH24:MI:SS')";
+            $RESOLVEDON = ($dt['RESOLVEDON'] == '30/12/1899 00:00:00') ? 'NULL' : "to_date('". $dt['RESOLVEDON'] ."', 'DD/MM/YYYY HH24:MI:SS')";
+            $MODIFIEDON = ($dt['MODIFIEDON'] == '30/12/1899 00:00:00') ? 'NULL' : "to_date('". $dt['MODIFIEDON'] ."', 'DD/MM/YYYY HH24:MI:SS')";
+            $CLOSEDDATE = ($dt['CLOSEDDATE'] == '30/12/1899 00:00:00') ? 'NULL' : "to_date('". $dt['CLOSEDDATE'] ."', 'DD/MM/YYYY HH24:MI:SS')";
+            $SLALEVEL1 = ($dt['SLALEVEL1'] == '30/12/1899 00:00:00') ? 'NULL' : "to_date('". $dt['SLALEVEL1'] ."', 'DD/MM/YYYY HH24:MI:SS')";
+            $SLALEVEL2 = ($dt['SLALEVEL2'] == '30/12/1899 00:00:00') ? 'NULL' : "to_date('". $dt['SLALEVEL2'] ."', 'DD/MM/YYYY HH24:MI:SS')";
+            $SLALEVEL3 = ($dt['SLALEVEL3'] == '30/12/1899 00:00:00') ? 'NULL' : "to_date('". $dt['SLALEVEL3'] ."', 'DD/MM/YYYY HH24:MI:SS')";
+            $ASSIGNEDON = ($dt['ASSIGNEDON'] == '30/12/1899 00:00:00') ? 'NULL' : "to_date('". $dt['ASSIGNEDON'] ."', 'DD/MM/YYYY HH24:MI:SS')";
             
-            $sql = "INSERT INTO faisallubis.TIKET_ITSM_UPLOAD (INCIDENT, CASEOWNER, CASEOWNEREMAIL, COMPLAINANT, COMPLAINANTEMAIL, SUMMARY, SOURCE, CALLTYPE, STATUS, DESCRIPTION, SERVICEFAMILY, SERVICEGROUP, SERVICETYPE, CAUSE, RESOLUTION, CREATEDBY, CREATEDON, RESOLVEDBY, RESOLVEDON, MODIFIEDBY, MODIFIEDON, CLOSEDBY, CLOSEDON, SLACLASS, SLALEVEL1, SLALEVEL2, SLALEVEL3, PRIORITY, PRIORITYNAME, ASSIGNTO, FIRSTCALLRESOLUTION, ASSIGNEDON, TGLUPLOAD, UPLOADBY)
-                    VALUES (:INCIDENT, :CASEOWNER, :CASEOWNEREMAIL, COMPLAINANT, :COMPLAINANTEMAIL, :SUMMARY, :SOURCE, :CALLTYPE, :STATUS, EMPTY_CLOB(), :SERVICEFAMILY, :SERVICEGROUP, :SERVICETYPE, EMPTY_CLOB(), EMPTY_CLOB(), :CREATEDBY, :CREATEDON, :RESOLVEDBY, :RESOLVEDON, :MODIFIEDBY, :MODIFIEDON, :CLOSEDBY, :CLOSEDON, :SLACLASS, :SLALEVEL1, :SLALEVEL2, :SLALEVEL3, :PRIORITY, :PRIORITYNAME, :ASSIGNTO, :FIRSTCALLRESOLUTION, :ASSIGNEDON, SYSDATE, :UPLOADBY)
+            $sql = "INSERT INTO faisallubis.TIKET_ITSM_UPLOAD (INCIDENT, CASEOWNER, CASEOWNEREMAIL, COMPLAINANT, COMPLAINANTEMAIL, SUMMARY, SOURCE, CALLTYPE, STATUS, DESCRIPTION, SERVICEFAMILY, SERVICEGROUP, SERVICETYPE, CAUSE, RESOLUTION, CREATEDBY, CREATEDON, RESOLVEDBY, RESOLVEDON, MODIFIEDBY, MODIFIEDON, CLOSEDBY, CLOSEDDATE, SLALEVEL1, SLALEVEL2, SLALEVEL3, PRIORITY, PRIORITYNAME, ASSIGNTO, FIRSTCALLRESOLUTION, ASSIGNEDON,  TGLUPLOAD, UPLOADBY)
+                    VALUES (:INCIDENT, :CASEOWNER, :CASEOWNEREMAIL, :COMPLAINANT, :COMPLAINANTEMAIL, :SUMMARY, :SOURCE, :CALLTYPE, :STATUS, EMPTY_CLOB(), :SERVICEFAMILY, :SERVICEGROUP, :SERVICETYPE, EMPTY_CLOB(), EMPTY_CLOB(), :CREATEDBY, $CREATEDON, :RESOLVEDBY, $RESOLVEDON, :MODIFIEDBY, $MODIFIEDON, :CLOSEDBY, $CLOSEDDATE, $SLALEVEL1, $SLALEVEL2, $SLALEVEL3, :PRIORITY, :PRIORITYNAME, :ASSIGNTO, :FIRSTCALLRESOLUTION, $ASSIGNEDON , SYSDATE, :UPLOADBY)
                     RETURNING DESCRIPTION, CAUSE, RESOLUTION  INTO :DESCRIPTION, :CAUSE, :RESOLUTION";
 
             $stid = oci_parse($conn, $sql);
@@ -229,22 +239,22 @@ class mexcell extends CI_Model {
             oci_bind_by_name($stid, ":CAUSE",  $clob_CAUSE, -1, OCI_B_CLOB);
             oci_bind_by_name($stid, ":RESOLUTION",  $clob_RESOLUTION, -1, OCI_B_CLOB);
             oci_bind_by_name($stid, ":CREATEDBY", $dt['CREATEDBY']);
-            oci_bind_by_name($stid, ":CREATEDON", $dt['CREATEDON']);
+            // oci_bind_by_name($stid, ":CREATEDON", $dt['CREATEDON']);
             oci_bind_by_name($stid, ":RESOLVEDBY", $dt['RESOLVEDBY']);
-            oci_bind_by_name($stid, ":RESOLVEDON", $dt['RESOLVEDON']);
+            // oci_bind_by_name($stid, ":RESOLVEDON", $dt['RESOLVEDON']);
             oci_bind_by_name($stid, ":MODIFIEDBY", $dt['MODIFIEDBY']);
-            oci_bind_by_name($stid, ":MODIFIEDON", $dt['MODIFIEDON']);
+            // oci_bind_by_name($stid, ":MODIFIEDON", $dt['MODIFIEDON']);
             oci_bind_by_name($stid, ":CLOSEDBY", $dt['CLOSEDBY']);
-            oci_bind_by_name($stid, ":CLOSEDON", $dt['CLOSEDON']);
-            oci_bind_by_name($stid, ":SLACLASS", $dt['SLACLASS']);
-            oci_bind_by_name($stid, ":SLALEVEL1", $dt['SLALEVEL1']);
-            oci_bind_by_name($stid, ":SLALEVEL2", $dt['SLALEVEL2']);
-            oci_bind_by_name($stid, ":SLALEVEL3", $dt['SLALEVEL3']);
+            // oci_bind_by_name($stid, ":CLOSEDDATE", $dt['CLOSEDDATE']);
+            // oci_bind_by_name($stid, ":SLACLASS", $dt['SLACLASS']);
+            // oci_bind_by_name($stid, ":SLALEVEL1", $dt['SLALEVEL1']);
+            // oci_bind_by_name($stid, ":SLALEVEL2", $dt['SLALEVEL2']);
+            // oci_bind_by_name($stid, ":SLALEVEL3", $dt['SLALEVEL3']);
             oci_bind_by_name($stid, ":PRIORITY", $dt['PRIORITY']);
             oci_bind_by_name($stid, ":PRIORITYNAME", $dt['PRIORITYNAME']);
             oci_bind_by_name($stid, ":ASSIGNTO", $dt['ASSIGNTO']);
             oci_bind_by_name($stid, ":FIRSTCALLRESOLUTION", $dt['FIRSTCALLRESOLUTION']);
-            oci_bind_by_name($stid, ":ASSIGNEDON", $dt['ASSIGNEDON']);
+            //oci_bind_by_name($stid, ":ASSIGNEDON", $ASSIGNEDON);
             oci_bind_by_name($stid, ":UPLOADBY", $dt['UPLOADBY']);
 
             $r = oci_execute($stid, OCI_NO_AUTO_COMMIT); // use OCI_DEFAULT for PHP <= 5.3.1
@@ -262,7 +272,7 @@ class mexcell extends CI_Model {
             }
 
             oci_commit($conn);
-            exit();
+            //exit();
         }
 
 
