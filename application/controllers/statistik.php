@@ -66,7 +66,7 @@ class statistik extends CI_Controller {
             $this->session->set_userdata($session_data);
             foreach ($res as $data) {
                 $row = array();
-                $row[] = $data['INCIDENT'];
+                $row[] = number_format($data['INCIDENT'], 0, '', '');
                 $row[] = $data['CASEOWNER'];
                 $row[] = $data['SLACLASS'];
                 $row[] = $data['SUMMARY'];

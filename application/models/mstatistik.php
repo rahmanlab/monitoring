@@ -37,7 +37,7 @@ class mstatistik extends CI_Model {
         $sql = "SELECT  SUBSTR(SERVICEFAMILY, 5, 10) as SERVICEFAMILY , count(*) as total 
                 FROM faisallubis.TIKET_ITSM 
                 WHERE STATUS = 'Active' 
-                
+                AND to_char(CREATEDON, 'mm/dd/yyyy') = to_char(sysdate-27, 'mm/dd/yyyy')
                 group by SERVICEFAMILY
                 ORDER BY total DESC
         ";
@@ -59,7 +59,9 @@ class mstatistik extends CI_Model {
         $sql = "SELECT INCIDENT,SLACLASS,CASEOWNER,SUMMARY,SERVICETYPE,
                 CREATEDBY,CREATEDON,CLOSEDDATE,
                 ASSIGNTO, ASSIGNEDON  
-                FROM faisallubis.TIKET_ITSM WHERE STATUS = 'Active' and SERVICEFAMILY like ?
+                FROM faisallubis.TIKET_ITSM 
+                WHERE STATUS = 'Active' AND to_char(CREATEDON, 'mm/dd/yyyy') = to_char(sysdate-27, 'mm/dd/yyyy')
+                and SERVICEFAMILY like ?
         ";
         $query = $this->db->query($sql,$params);
 
@@ -75,13 +77,13 @@ class mstatistik extends CI_Model {
 
     // GET TOTAL TIKET BY 
     public function get_total_resolved() {
-        $sql = "Select SUBSTR(st.SERVICEFAMILY,5,10) as SERVICEFAMILY ,st.total, sv.total_rs  FROM 
-        ( Select  a.SERVICEFAMILY , count(*) as total
-        FROM faisallubis.TIKET_ITSM a where 
-        to_char(a.CREATEDON, 'mm/dd/yyyy') = to_char(sysdate-1, 'mm/dd/yyyy') group by a.SERVICEFAMILY) st
-        left join ( select b.SERVICEFAMILY, count(*) as total_rs FROM faisallubis.TIKET_ITSM b
-        where status = 'Resolved' and to_char(b.CREATEDON, 'mm/dd/yyyy') = to_char(sysdate-1, 'mm/dd/yyyy') group by b.SERVICEFAMILY) sv
-        on st.SERVICEFAMILY = sv.SERVICEFAMILY
+        $sql = "SELECT SUBSTR(st.SERVICEFAMILY,5,10) as SERVICEFAMILY ,st.total, sv.total_rs  FROM 
+                ( Select  a.SERVICEFAMILY , count(*) as total
+                FROM faisallubis.TIKET_ITSM a WHERE 
+                to_char(a.CREATEDON, 'mm/dd/yyyy') = to_char(sysdate-27, 'mm/dd/yyyy') group by a.SERVICEFAMILY) st
+                left join ( select b.SERVICEFAMILY, count(*) as total_rs FROM faisallubis.TIKET_ITSM b
+                where status = 'Resolved' and to_char(b.CREATEDON, 'mm/dd/yyyy') = to_char(sysdate-27, 'mm/dd/yyyy') group by b.SERVICEFAMILY) sv
+                on st.SERVICEFAMILY = sv.SERVICEFAMILY
         ";
         $query = $this->db->query($sql);
         if ($query->num_rows() > 0) {
@@ -101,7 +103,7 @@ class mstatistik extends CI_Model {
     // GET TOTAL TIKET H-1
     public function get_total_tiket() {
         $sql = "SELECT COUNT(*) TOTAL_TIKET FROM FAISALLUBIS.TIKET_ITSM 
-        WHERE TO_CHAR(CREATEDON, 'mm/dd/yyyy') = to_char(sysdate-1, 'mm/dd/yyyy')
+        WHERE TO_CHAR(CREATEDON, 'mm/dd/yyyy') = to_char(sysdate-27, 'mm/dd/yyyy')
         ";
         $query = $this->db->query($sql);
         if ($query->num_rows() > 0) {
@@ -115,7 +117,7 @@ class mstatistik extends CI_Model {
     // GET TOTAL TIKET AKTIF H-1
     public function get_total_tiket_aktif($params) {
         $sql = "SELECT COUNT(*) TOTAL_TIKET FROM FAISALLUBIS.TIKET_ITSM 
-        WHERE TO_CHAR(CREATEDON, 'mm/dd/yyyy') = to_char(sysdate-1, 'mm/dd/yyyy')
+        WHERE TO_CHAR(CREATEDON, 'mm/dd/yyyy') = to_char(sysdate-27, 'mm/dd/yyyy')
         AND STATUS = 'Active'
         ";
         $query = $this->db->query($sql);
@@ -130,7 +132,7 @@ class mstatistik extends CI_Model {
     // GET TOTAL TIKET RESOLVED H-1
     public function get_total_tiket_resolved($params) {
         $sql = "SELECT COUNT(*) TOTAL_TIKET FROM FAISALLUBIS.TIKET_ITSM 
-        WHERE TO_CHAR(CREATEDON, 'mm/dd/yyyy') = to_char(sysdate-1, 'mm/dd/yyyy')
+        WHERE TO_CHAR(CREATEDON, 'mm/dd/yyyy') = to_char(sysdate-27, 'mm/dd/yyyy')
         AND STATUS = 'Resolved'
         ";
         $query = $this->db->query($sql);

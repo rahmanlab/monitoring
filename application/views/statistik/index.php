@@ -24,7 +24,7 @@ $PESAN = $this->session->userdata('PESAN');
 
           <div class="box box-success">
             <div class="box-header with-border">
-              <h3 class="box-title">Grafik Tiket Berdasarkan Jenis Transaksi Tahun <?php echo $search['tahun'];?></h3>
+              <h3 class="box-title">Grafik Tiket ITSM</h3>
               <div class="box-tools pull-right">
                 <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
                 <button class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
@@ -234,7 +234,7 @@ $PESAN = $this->session->userdata('PESAN');
 				type: 'pie'
 			},
 			title: {
-				text: "MONITORING TIKETING.  <?php echo $waktu_sekarang['hari'] . ', ' . $waktu_sekarang['tanggal'] . ' ' . $waktu_sekarang['bulan'] . ' ' . $waktu_sekarang['tahun']; ?>"
+				text: "MONITORING TIKET AKTIF PERTANGGAL  <?php echo $waktu_sekarang['tanggal'] . ' ' . strtoupper($waktu_sekarang['bulan']) . ' ' . $waktu_sekarang['tahun']; ?>"
 			},
 			tooltip: {
 				pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'

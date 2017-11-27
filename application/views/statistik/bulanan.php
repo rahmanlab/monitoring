@@ -175,57 +175,28 @@ $PESAN = $this->session->userdata('PESAN');
         </div><!-- /.box-body -->
       </div><!-- /.box -->
       <!-- PRODUCT LIST -->
-      <!-- /.box -->
-      <div class="box box-default">
+
+      <div class="box box-success">
         <div class="box-header with-border">
-          <h3 class="box-title">Grafik Tiket Berdasarkan Jenis Transaksi Tahun <?php echo $search['tahun'];?></h3>
+          <h3 class="box-title">Grafik Tiket Perhari</h3>
           <div class="box-tools pull-right">
             <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
             <button class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
           </div>
-        </div><!-- /.box-header -->
+        </div>
         <div class="box-body">
-          <div class="row">
-            <div class="col-md-8">
-              <div class="chart-responsive">
-                <canvas id="pieChart" height="150"></canvas>
-              </div><!-- ./chart-responsive -->
-            </div><!-- /.col -->
-            <div class="col-md-4">
-              <ul class="chart-legend clearfix">
-                <li><i class="fa fa-circle-o text-red"></i><?php  echo $rs_jml_pertransaksi[0]['JENIS_TRANSAKSI']; ?></li>
-                <li><i class="fa fa-circle-o text-green"></i><?php  echo $rs_jml_pertransaksi[1]['JENIS_TRANSAKSI']; ?></li>
-                <li><i class="fa fa-circle-o text-yellow"></i><?php  echo $rs_jml_pertransaksi[2]['JENIS_TRANSAKSI']; ?></li>
-                <li><i class="fa fa-circle-o text-aqua"></i><?php  echo $rs_jml_pertransaksi[3]['JENIS_TRANSAKSI']; ?></li>
-                <li><i class="fa fa-circle-o text-light-blue"></i><?php  echo $rs_jml_pertransaksi[4]['JENIS_TRANSAKSI']; ?></li>
-                <li><i class="fa fa-circle-o text-gray"></i><?php  echo $rs_jml_pertransaksi[5]['JENIS_TRANSAKSI']; ?></li>
-              </ul>
-            </div><!-- /.col -->
-          </div><!-- /.row -->
+          <div class="chart">
+            <div id="container-test">
+              <p class="pull-right">
+                <a href="<?php echo base_url('statistik');?>" class="btn btn-success btn-sm ad-click-event">
+                  LIHAT STATISTIK PERHARI H-1
+                </a>
+              </p>
+            </div>
+          </div>
         </div><!-- /.box-body -->
-        <div class="box-footer no-padding">
-          <ul class="nav nav-pills nav-stacked">
-            <?php if(isset($rs_jml_pertransaksi[0]['TOTAL_PERTRANSAKSI'])){ 
-              $total = 0;
-              for ($i=0; $i <= 5 ; $i++) { 
-                $total = $total + $rs_jml_pertransaksi[$i]['TOTAL_PERTRANSAKSI'];
-              }
-              foreach ($rs_jml_pertransaksi as $row) {
-                $persen = ($row['TOTAL_PERTRANSAKSI'] / $total) * 100 ;
-
-                ?>
-
-                <li><a href="#"><?php echo $row['JENIS_TRANSAKSI']; ?> <span class="pull-right text-green"><i class="fa fa-angle-right"></i> <?php echo round($persen); ?>%</span>
-                  <?php } ?>
-
-
-                </a></li>
-                <?php } else { ?>
-                <li><a href="#">Data Kosong<span class="pull-right text-green"><i class="fa fa-angle-right"></i> </span></a></li>
-                <?php  }?>
-              </ul>
-            </div><!-- /.footer -->
-          </div><!-- /.box -->
+      </div><!-- /.box -->
+      <!-- /.box -->
 
 
         </div><!-- /.col -->
@@ -400,92 +371,6 @@ $PESAN = $this->session->userdata('PESAN');
           }
           ]
         };
-
-
-
-        //-------------
-        //- PIE CHART -
-        //-------------
-        // Get context with jQuery - using jQuery's .get() method.
-        var pieChartCanvas = $("#pieChart").get(0).getContext("2d");
-        var pieChart = new Chart(pieChartCanvas);
-        var PieData = [
-        <?php if(isset($rs_jml_pertransaksi[0]['TOTAL_PERTRANSAKSI'])){ ?>
-
-          {
-            value: <?php  echo $rs_jml_pertransaksi[0]['TOTAL_PERTRANSAKSI']; ?>,
-            color: "#f56954",
-            highlight: "#f56954",
-            label: "<?php  echo $rs_jml_pertransaksi[0]['JENIS_TRANSAKSI']; ?>"
-          },
-          {
-            value: <?php  echo $rs_jml_pertransaksi[1]['TOTAL_PERTRANSAKSI']; ?>,
-            color: "#00a65a",
-            highlight: "#00a65a",
-            label: "<?php  echo $rs_jml_pertransaksi[1]['JENIS_TRANSAKSI']; ?>"
-          },
-          {
-            value: <?php  echo $rs_jml_pertransaksi[2]['TOTAL_PERTRANSAKSI']; ?>,
-            color: "#f39c12",
-            highlight: "#f39c12",
-            label: "<?php  echo $rs_jml_pertransaksi[2]['JENIS_TRANSAKSI']; ?>"
-          },
-          {
-            value: <?php  echo $rs_jml_pertransaksi[3]['TOTAL_PERTRANSAKSI']; ?>,
-            color: "#00c0ef",
-            highlight: "#00c0ef",
-            label: "<?php  echo $rs_jml_pertransaksi[3]['JENIS_TRANSAKSI']; ?>"
-          },
-          {
-            value: <?php  echo $rs_jml_pertransaksi[4]['TOTAL_PERTRANSAKSI']; ?>,
-            color: "#3c8dbc",
-            highlight: "#3c8dbc",
-            label: "<?php  echo $rs_jml_pertransaksi[4]['JENIS_TRANSAKSI']; ?>"
-          },
-          {
-            value: <?php  echo $rs_jml_pertransaksi[5]['TOTAL_PERTRANSAKSI']; ?>,
-            color: "#d2d6de",
-            highlight: "#d2d6de",
-            label: "<?php  echo $rs_jml_pertransaksi[5]['JENIS_TRANSAKSI']; ?>"
-          }
-          <?php }else{ ?> 
-
-            {
-              value: 1,
-              color: "#d2d6de",
-              highlight: "#d2d6de",
-              label: "Data kosong."
-            }
-
-            <?php } ?>
-            ];
-            var pieOptions = {
-          //Boolean - Whether we should show a stroke on each segment
-          segmentShowStroke: true,
-          //String - The colour of each segment stroke
-          segmentStrokeColor: "#fff",
-          //Number - The width of each segment stroke
-          segmentStrokeWidth: 2,
-          //Number - The percentage of the chart that we cut out of the middle
-          percentageInnerCutout: 50, // This is 0 for Pie charts
-          //Number - Amount of animation steps
-          animationSteps: 100,
-          //String - Animation easing effect
-          animationEasing: "easeOutBounce",
-          //Boolean - Whether we animate the rotation of the Doughnut
-          animateRotate: true,
-          //Boolean - Whether we animate scaling the Doughnut from the centre
-          animateScale: false,
-          //Boolean - whether to make the chart responsive to window resizing
-          responsive: true,
-          // Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire 
-          maintainAspectRatio: true,
-          //String - A legend template
-          legendTemplate: "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<segments.length; i++){%><li><span style=\"background-color:<%=segments[i].fillColor%>\"></span><%if(segments[i].label){%><%=segments[i].label%><%}%></li><%}%></ul>"
-        };
-        //Create pie or douhnut chart
-        // You can switch between pie and douhnut using the method below.
-        pieChart.Doughnut(PieData, pieOptions);
 
         //-------------
         //- BAR CHART -
