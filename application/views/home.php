@@ -38,8 +38,8 @@
         <!-- AdminLTE App -->
         <script src="<?php echo base_url('assets/dist/js/app.js');?>" type="text/javascript"></script>
         <!-- highcharts -->
-        <script src='<?php echo base_url('assets/plugins/highcharts/code/modules/exporting.js');?>'></script>
         <script src='<?php echo base_url('assets/plugins/highcharts/code/highcharts.js');?>'></script>
+        <script src='<?php echo base_url('assets/plugins/highcharts/code/modules/exporting.js');?>'></script>
         <!-- DATA TABES SCRIPT -->
        
        
@@ -251,7 +251,7 @@
         ?>
         
     </head>
-    <body class="skin-blue fixed">
+    <body class="skin-blue fixed sidebar-collapse">
         <div class="wrapper">
             <header class="main-header">
                 <nav class="navbar navbar-static-top" role="navigation">
