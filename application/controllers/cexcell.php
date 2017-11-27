@@ -2,39 +2,66 @@
 
 error_reporting(E_ALL ^ (E_NOTICE | E_WARNING));
 defined('BASEPATH') OR exit('No direct script access allowed');
-//$lokasiSpout= site_url('assets/spout-master/src/Spout/Autoloader/autoload.php');
-
-require_once('C:/xampp/553/htdocs/monitoring/assets/plugins/spout-master/src/Spout/Autoloader/autoload.php') ;
 //lets Use the Spout Namespaces
 use Box\Spout\Reader\ReaderFactory;
 use Box\Spout\Common\Type;
 
 class cexcell extends CI_Controller {
 
-    public function __construct() {
-        parent::__construct();
-        date_default_timezone_set('Asia/Jakarta');
-        ini_set('max_execution_time', 0);
-        set_time_limit(0);
-        $this->load->helper('url');
-        $this->load->helper('form');
-        $this->load->model('mexcell');
+	public function __construct() {
+		parent::__construct();
+		date_default_timezone_set('Asia/Jakarta');
+		ini_set('max_execution_time', 0);
+		set_time_limit(0);
+		$this->load->helper('url');
+		$this->load->helper('form');
+		$this->load->helper(array('path'));
+		$this->load->file('assets/plugins/spout-master/src/Spout/Autoloader/autoload.php');
+		$this->load->library('pagination');
+		$this->load->model('mexcell');
         // LOAD LIBRARY
-        $sesi_login = $this->session->userdata('logged');
-        if (!isset($sesi_login)) {
-            redirect('auth/login');
-        }
-    }
-    
+		$sesi_login = $this->session->userdata('logged');
+		if (!isset($sesi_login)) {
+			redirect('auth/login');
+		}
+	}
+	
 
-    public function index() {
-        $data['title'] = "Upload Data ITSM";
-        $data['konten'] = "vUploadExcell";
-		//$data['uploadItsm'] = $this->mexcell->get_list_data_upload_itsm();
-		$data['uploadItsm'] = $this->mexcell->get_list_tiket_itsm();
-       //print_r($data['uploadItsm']); exit();
-        $this->load->view('home', $data);
-    }
+	public function index() {
+		$data['title'] = "Upload Data ITSM";
+		$data['konten'] = "vUploadExcell";
+		/* start of pagination --------------------- */
+        // pagination
+		$config['base_url'] = site_url("cexcell/index");
+        //$params = array($data_status);
+		$config['total_rows'] = $this->mexcell->get_total_tiket();
+		$config['uri_segment'] = 3;
+		$config['per_page'] = 10;
+		$this->pagination->initialize($config);
+		$pagination['data'] = $this->pagination->create_links();
+        // pagination attribute
+		$start = $this->uri->segment(3, 0) + 1;
+		$end = $this->uri->segment(3, 0) + $config['per_page'];
+		$end = (($end > $config['total_rows']) ? $config['total_rows'] : $end);
+		$pagination['start'] = ($config['total_rows'] == 0) ? 0 : $start;
+		$pagination['end'] = $end;
+		$pagination['total'] = $config['total_rows'];
+        // pagination assign value
+		$data['pagination'] = $pagination;
+		$data['no'] = $start;
+		/* end of pagination ---------------------- */
+        // get list oracle vs mysql -> $start : $perpage 
+        // pagenumber : per_page   -> start : per_page
+        // hal1 = 1 : 10 -> 1 : 10
+        // hal2 = 2 : 10 -> 11 : 10
+        // hal3 = 3 : 10 -> 21 : 10
+        // hal4 = 4 : 10 -> 31 : 10    
+        // jadi untuk oracle
+		$pagenumber = (($start -1 )/10) + 1 ;
+		$params = array(($pagenumber ), $config['per_page']);
+		$data['uploadItsm'] = $this->mexcell->get_list_tiket_itsm($params);
+		$this->load->view('home', $data);
+	}
 
 	//import database
 	public function importDataExcell(){
@@ -50,8 +77,8 @@ class cexcell extends CI_Controller {
 			//echo "<pre>";           
 			$i=0;
 			
-		   foreach ($reader->getSheetIterator() as $sheet) {
-				              
+			foreach ($reader->getSheetIterator() as $sheet) {
+				
 				foreach ($sheet->getRowIterator() as $row) {
 					
 					if ($i >= 1){
@@ -106,17 +133,22 @@ class cexcell extends CI_Controller {
 					$i++;
 					
 				}
-			
+				
 			}
-			$this->mexcell->insert2($params);             
+			$message = $this->mexcell->insert2($params);             
 			//print_r($params); exit();
 			$reader->close();
-			redirect("cexcell");
+			if($message == 'sukses'){
+				$this->session->set_flashdata('pesan', 'Data berhasil ditambahkan.');
+				redirect("cexcell");
+			}else{
+				$this->session->set_flashdata('gagal', $message['message']);
+				redirect("cexcell");
+			}
 
 		} catch (Exception $e) {
-			echo "fghj";
-			echo $e->getMessage();
-			exit();   
+			$this->session->set_flashdata('gagal', $e->getMessage());
+			redirect("cexcell");
 		}
 	}
 }
