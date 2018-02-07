@@ -34,10 +34,10 @@ class mstatistik extends CI_Model {
 
     // GET TOTAL TIKET BY FAMILY - DONUT CHART
     public function get_total_family() {
-        $sql = "SELECT  SUBSTR(SERVICEFAMILY, 5, 10) as SERVICEFAMILY , count(*) as total 
+        $sql = "SELECT  SUBSTR(SERVICEFAMILY, 5, 10) as SERVICEFAMILY_SUBSTR, SERVICEFAMILY , count(*) as total 
                 FROM faisallubis.TIKET_ITSM 
                 WHERE STATUS = 'Active' 
-                AND to_char(CREATEDON, 'mm/dd/yyyy') = to_char(sysdate-27, 'mm/dd/yyyy')
+                AND to_char(CREATEDON, 'mm/dd/yyyy') = to_char(sysdate-1, 'mm/dd/yyyy')
                 group by SERVICEFAMILY
                 ORDER BY total DESC
         ";
@@ -55,34 +55,32 @@ class mstatistik extends CI_Model {
 
 
     // GET TOTAL TIKET BY FAMILY
-    public function get_list_by_family($params) {
-        $sql = "SELECT INCIDENT,SLACLASS,CASEOWNER,SUMMARY,SERVICETYPE,
-                CREATEDBY,CREATEDON,CLOSEDDATE,
-                ASSIGNTO, ASSIGNEDON  
-                FROM faisallubis.TIKET_ITSM 
-                WHERE STATUS = 'Active' AND to_char(CREATEDON, 'mm/dd/yyyy') = to_char(sysdate-27, 'mm/dd/yyyy')
-                and SERVICEFAMILY like ?
-        ";
-        $query = $this->db->query($sql,$params);
-
-
-        if ($query->num_rows() > 0) {
-            $result = $query->result_array();
-            //$query->free_result();
-            return $result;
-        } else {
-            return NULL;
-        }
-    }
+    // public function get_list_by_family($params) {
+    //     $sql = "SELECT INCIDENT,SLACLASS,CASEOWNER,SUMMARY,SERVICETYPE,
+    //             CREATEDBY,CREATEDON,CLOSEDDATE,
+    //             ASSIGNTO, ASSIGNEDON  
+    //             FROM faisallubis.TIKET_ITSM 
+    //             WHERE STATUS = 'Active' AND to_char(CREATEDON, 'mm/dd/yyyy') = to_char(sysdate-1, 'mm/dd/yyyy')
+    //             and SERVICEFAMILY like ?
+    //     ";
+    //     $query = $this->db->query($sql,$params);
+    //     if ($query->num_rows() > 0) {
+    //         $result = $query->result_array();
+    //         //$query->free_result();
+    //         return $result;
+    //     } else {
+    //         return NULL;
+    //     }
+    // }
 
     // GET TOTAL TIKET BY 
     public function get_total_resolved() {
         $sql = "SELECT SUBSTR(st.SERVICEFAMILY,5,10) as SERVICEFAMILY ,st.total, sv.total_rs  FROM 
                 ( Select  a.SERVICEFAMILY , count(*) as total
                 FROM faisallubis.TIKET_ITSM a WHERE 
-                to_char(a.CREATEDON, 'mm/dd/yyyy') = to_char(sysdate-27, 'mm/dd/yyyy') group by a.SERVICEFAMILY) st
+                to_char(a.CREATEDON, 'mm/dd/yyyy') = to_char(sysdate-1, 'mm/dd/yyyy') group by a.SERVICEFAMILY) st
                 left join ( select b.SERVICEFAMILY, count(*) as total_rs FROM faisallubis.TIKET_ITSM b
-                where status = 'Resolved' and to_char(b.CREATEDON, 'mm/dd/yyyy') = to_char(sysdate-27, 'mm/dd/yyyy') group by b.SERVICEFAMILY) sv
+                where status = 'Resolved' and to_char(b.CREATEDON, 'mm/dd/yyyy') = to_char(sysdate-1, 'mm/dd/yyyy') group by b.SERVICEFAMILY) sv
                 on st.SERVICEFAMILY = sv.SERVICEFAMILY
         ";
         $query = $this->db->query($sql);
@@ -99,56 +97,62 @@ class mstatistik extends CI_Model {
             return NULL;
         }
     }
+public function get_total_tiket() {
+       /*  $sql = "SELECT COUNT(*) TOTAL_TIKET FROM FAISALLUBIS.TIKET_ITSM 
+        WHERE TO_CHAR(CREATEDON, 'mm/dd/yyyy') = to_char(sysdate-1, 'mm/dd/yyyy')
+        ";
+        $query = $this->db->query($sql);
+        if ($query->num_rows() > 0) {
+            $result = $query->row_array();
+            $query->free_result();
+            return $result['TOTAL_TIKET'];
+        } else {
+            return NULL;
+        } */
+        $cursor='';
+        $results = '';
+        $this->pblmig_db = $this->load->database('pblmig', true);
+        if (!$this->pblmig_db) {
+            $m = oci_error();
+            trigger_error(htmlentities($m['message']), E_USER_ERROR);
+        }
+        $stid = oci_parse($this->pblmig_db->conn_id, 'begin OPHARAPP.PKG_TESTING.GET_DATA_H_MIN1 (:OUT_DATA_TOTAL_TIKET, :OUT_DATA_TIKET_AKTIF, :OUT_DATA_TIKET_RESOLVED); end;');
+        $OUT_DATA_TOTAL_TIKET = oci_new_cursor($this->pblmig_db->conn_id);
+        $OUT_DATA_TIKET_AKTIF = oci_new_cursor($this->pblmig_db->conn_id);
+        $OUT_DATA_TIKET_RESOLVED = oci_new_cursor($this->pblmig_db->conn_id);
+  
+        oci_bind_by_name($stid, ':OUT_DATA_TOTAL_TIKET', $OUT_DATA_TOTAL_TIKET,-1, OCI_B_CURSOR) or die('Error binding string3');
+        oci_bind_by_name($stid, ':OUT_DATA_TIKET_AKTIF', $OUT_DATA_TIKET_AKTIF,-1, OCI_B_CURSOR) or die('Error binding string4');
+        oci_bind_by_name($stid, ':OUT_DATA_TIKET_RESOLVED', $OUT_DATA_TIKET_RESOLVED,-1, OCI_B_CURSOR) or die('Error binding string4');
+                //Bind Cursor     put -1
+        //var_dump($stid);
+        if(oci_execute($stid)){
+            oci_execute($OUT_DATA_TOTAL_TIKET, OCI_DEFAULT);
+            oci_execute($OUT_DATA_TIKET_AKTIF, OCI_DEFAULT);
+            oci_execute($OUT_DATA_TIKET_RESOLVED, OCI_DEFAULT);
+            
+            //oci_fetch_all($OUT_DATA_TOTAL_TIKET, $cursor, null, null, OCI_FETCHSTATEMENT_BY_ROW);
+            oci_fetch_all($OUT_DATA_TOTAL_TIKET, $cursor['dataTiketTotal'], null, null, OCI_FETCHSTATEMENT_BY_ROW);
+            oci_fetch_all($OUT_DATA_TIKET_AKTIF, $cursor['dataTiketAktif'], null, null, OCI_FETCHSTATEMENT_BY_ROW);
+            oci_fetch_all($OUT_DATA_TIKET_RESOLVED, $cursor['dataTiketResolved'], null, null, OCI_FETCHSTATEMENT_BY_ROW);
+                  //echo '<br>';
+            $results = $cursor;
+                  //print_r($cursor);  
+        }else{
+            $e = oci_error($stid);
+            $results =  $e['message'];
+        } 
+          oci_free_statement($stid);
+          oci_close($this->pblmig_db->conn_id);
 
-    // GET TOTAL TIKET H-1
-    public function get_total_tiket() {
-        $sql = "SELECT COUNT(*) TOTAL_TIKET FROM FAISALLUBIS.TIKET_ITSM 
-        WHERE TO_CHAR(CREATEDON, 'mm/dd/yyyy') = to_char(sysdate-27, 'mm/dd/yyyy')
-        ";
-        $query = $this->db->query($sql);
-        if ($query->num_rows() > 0) {
-            $result = $query->row_array();
-            $query->free_result();
-            return $result['TOTAL_TIKET'];
-        } else {
-            return NULL;
-        }
-    }
-    // GET TOTAL TIKET AKTIF H-1
-    public function get_total_tiket_aktif($params) {
-        $sql = "SELECT COUNT(*) TOTAL_TIKET FROM FAISALLUBIS.TIKET_ITSM 
-        WHERE TO_CHAR(CREATEDON, 'mm/dd/yyyy') = to_char(sysdate-27, 'mm/dd/yyyy')
-        AND STATUS = 'Active'
-        ";
-        $query = $this->db->query($sql);
-        if ($query->num_rows() > 0) {
-            $result = $query->row_array();
-            $query->free_result();
-            return $result['TOTAL_TIKET'];
-        } else {
-            return NULL;
-        }
-    }
-    // GET TOTAL TIKET RESOLVED H-1
-    public function get_total_tiket_resolved($params) {
-        $sql = "SELECT COUNT(*) TOTAL_TIKET FROM FAISALLUBIS.TIKET_ITSM 
-        WHERE TO_CHAR(CREATEDON, 'mm/dd/yyyy') = to_char(sysdate-27, 'mm/dd/yyyy')
-        AND STATUS = 'Resolved'
-        ";
-        $query = $this->db->query($sql);
-        if ($query->num_rows() > 0) {
-            $result = $query->row_array();
-            $query->free_result();
-            return $result['TOTAL_TIKET'];
-        } else {
-            return NULL;
-        }
+          return $results;
+        
     }
 
     // Grafik Total tiket bulanan
     public function get_list_bulanan_total($params) {
         $sql = "Select  a.SERVICEFAMILY , count(*) as total
-        FROM faisallubis.TIKET_ITSM a where 
+        FROM faisallubis.TIKET_ITSM_HISTO a where 
         to_char(a.CREATEDON, 'yyyymm') = ? group by a.SERVICEFAMILY
         ";
         $query = $this->db->query($sql,$params);
@@ -164,11 +168,11 @@ class mstatistik extends CI_Model {
     }
     // Grafik Total tiket SLA bulanan
     public function get_list_sla_bulanan($params) {
-        $sql = "select SERVICEFAMILY, count(*) as total_sla FROM faisallubis.TIKET_ITSM
+        $sql = "select SERVICEFAMILY, count(*) as total_sla FROM faisallubis.TIKET_ITSM_HISTO
         where to_char(CREATEDON, 'yyyymm') = ? 
-        and to_char(RESOLVEDON, 'mm/dd/yyyy') > to_char(SLALEVEL1, 'mm/dd/yyyy')
-        or to_char(RESOLVEDON, 'mm/dd/yyyy') > to_char(SLALEVEL2, 'mm/dd/yyyy') 
-        or to_char(RESOLVEDON, 'mm/dd/yyyy') > to_char(SLALEVEL3, 'mm/dd/yyyy')
+        and to_char(RESOLVEDON, 'yyyymmdd') > to_char(SLALEVEL1, 'yyyymmdd')
+        or to_char(RESOLVEDON, 'yyyymmdd') > to_char(SLALEVEL2, 'yyyymmdd') 
+        or to_char(RESOLVEDON, 'yyyymmdd') > to_char(SLALEVEL3, 'yyyymmdd')
         group by SERVICEFAMILY
         ";
         $query = $this->db->query($sql,$params);
@@ -185,7 +189,7 @@ class mstatistik extends CI_Model {
 
     // GET TOTAL TIKET BULANAN
     public function get_total_tiket_bulanan($params) {
-        $sql = "SELECT COUNT(*) TOTAL_TIKET FROM FAISALLUBIS.TIKET_ITSM 
+        $sql = "SELECT COUNT(*) TOTAL_TIKET FROM FAISALLUBIS.TIKET_ITSM_HISTO 
         WHERE TO_CHAR(CREATEDON, 'YYYYMM') = ?
         ";
         $query = $this->db->query($sql,$params);
@@ -199,7 +203,7 @@ class mstatistik extends CI_Model {
     }
     // GET TOTAL TIKET BULANAN
     public function get_tiket_oversla_bulanan($params) {
-        $sql = "SELECT COUNT(*) TOTAL_SLA FROM FAISALLUBIS.TIKET_ITSM
+        $sql = "SELECT COUNT(*) TOTAL_SLA FROM FAISALLUBIS.TIKET_ITSM_HISTO
         WHERE TO_CHAR(CREATEDON, 'YYYYMM') = ? AND  
         TO_CHAR(RESOLVEDON, 'MM/DD/YYYY') > TO_CHAR(SLALEVEL1, 'MM/DD/YYYY')
         OR TO_CHAR(RESOLVEDON, 'MM/DD/YYYY') > TO_CHAR(SLALEVEL2, 'MM/DD/YYYY') 
@@ -216,7 +220,7 @@ class mstatistik extends CI_Model {
     }
     // GET TOTAL TIKET BULANAN
     public function get_tiket_resolved_bulanan($params) {
-        $sql = "SELECT COUNT(*) TOTAL_RS FROM FAISALLUBIS.TIKET_ITSM WHERE 
+        $sql = "SELECT COUNT(*) TOTAL_RS FROM FAISALLUBIS.TIKET_ITSM_HISTO WHERE 
         TO_CHAR(CREATEDON, 'YYYYMM') = ? AND
         STATUS = 'Resolved'
         ";
@@ -263,8 +267,8 @@ class mstatistik extends CI_Model {
     // GET TOTAL SUPPORT
     public function get_jml_tiket_bulanan($params) {
         $sql = "SELECT TO_CHAR(CREATEDON, 'MM') AS BULAN, COUNT(*) AS TIKET_PERBULAN 
-        FROM faisallubis.TIKET_ITSM
-        WHERE TO_CHAR(CREATEDON,'YYYY') = '2017'
+        FROM faisallubis.TIKET_ITSM_HISTO
+        WHERE TO_CHAR(CREATEDON,'YYYY') = ?
         GROUP BY TO_CHAR(CREATEDON, 'MM')
         ORDER BY BULAN ASC
         ";
@@ -498,6 +502,185 @@ class mstatistik extends CI_Model {
         return $results;
     }
     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // STATISTIK HARIAN
+
+    // GET TOTAL TIKET BY FAMILY - DONUT CHART
+    public function get_total_family_harian($params) {
+        $sql = "SELECT  SUBSTR(SERVICEFAMILY, 5, 10) as SERVICEFAMILY , count(*) as total 
+                FROM faisallubis.TIKET_ITSM_HISTO 
+                WHERE STATUS = 'Active' 
+                AND to_char(CREATEDON, 'dd-mm-yyyy') = ?
+                group by SERVICEFAMILY
+                ORDER BY total DESC
+        ";
+        $query = $this->db->query($sql, $params);
+
+
+        if ($query->num_rows() > 0) {
+            $result = $query->result_array();
+            $query->free_result();
+            return $result;
+        } else {
+            return NULL;
+        }
+    }
+
+
+    // GET TOTAL TIKET BY 
+    public function get_total_resolved_harian($params) {
+        $params = array($params , $params);
+        $sql = "SELECT SUBSTR(st.SERVICEFAMILY,5,10) as SERVICEFAMILY ,st.total, sv.total_rs  FROM 
+                ( Select  a.SERVICEFAMILY , count(*) as total
+                FROM faisallubis.TIKET_ITSM_HISTO a WHERE 
+                to_char(a.CREATEDON, 'dd-mm-yyyy') = ? group by a.SERVICEFAMILY) st
+                left join ( select b.SERVICEFAMILY, count(*) as total_rs FROM faisallubis.TIKET_ITSM b
+                where status = 'Resolved' and to_char(b.CREATEDON, 'dd-mm-yyyy') = ? group by b.SERVICEFAMILY) sv
+                on st.SERVICEFAMILY = sv.SERVICEFAMILY
+        ";
+        $query = $this->db->query($sql,  $params);
+        if ($query->num_rows() > 0) {
+            $result = $query->result_array();
+            $query->free_result();
+            foreach ($result as $key => $rs) {
+                $data['SERVICEFAMILY'][$key] = $rs['SERVICEFAMILY'];
+                $data['TOTAL'][$key] = $rs['TOTAL'];
+                $data['TOTAL_RS'][$key] = $rs['TOTAL_RS'];
+            }
+            return $data;
+        } else {
+            return NULL;
+        }
+    }
+
+    // GET TOTAL TIKET H-1
+    public function get_total_tiket_harian($params) {
+        $sql = "SELECT COUNT(*) TOTAL_TIKET FROM FAISALLUBIS.TIKET_ITSM_HISTO 
+        WHERE to_char(CREATEDON, 'dd-mm-yyyy') = ?
+        ";
+        $query = $this->db->query($sql, $params);
+        if ($query->num_rows() > 0) {
+            $result = $query->row_array();
+            $query->free_result();
+            return $result['TOTAL_TIKET'];
+        } else {
+            return NULL;
+        }
+    }
+    // GET TOTAL TIKET AKTIF H-1
+    public function get_total_tiket_aktif_harian($params) {
+        $sql = "SELECT COUNT(*) TOTAL_TIKET FROM FAISALLUBIS.TIKET_ITSM_HISTO 
+        WHERE to_char(CREATEDON, 'dd-mm-yyyy') = ?
+        AND STATUS = 'Active'
+        ";
+        $query = $this->db->query($sql, $params);
+        if ($query->num_rows() > 0) {
+            $result = $query->row_array();
+            $query->free_result();
+            return $result['TOTAL_TIKET'];
+        } else {
+            return NULL;
+        }
+    }
+    // GET TOTAL TIKET RESOLVED H-1
+    public function get_total_tiket_resolved_harian($params) {
+        $sql = "SELECT COUNT(*) TOTAL_TIKET FROM FAISALLUBIS.TIKET_ITSM_HISTO 
+        WHERE to_char(CREATEDON, 'dd-mm-yyyy') = ?
+        AND STATUS = 'Resolved'
+        ";
+        $query = $this->db->query($sql, $params);
+        if ($query->num_rows() > 0) {
+            $result = $query->row_array();
+            $query->free_result();
+            return $result['TOTAL_TIKET'];
+        } else {
+            return NULL;
+        }
+    }
+
+
+
+    // menampilkan detail data dari chart
+    public function get_list_by_family_harian($params) {
+        $sql = "SELECT INCIDENT,SLACLASS,CASEOWNER,SUMMARY,SERVICETYPE,
+                CREATEDBY,CREATEDON,CLOSEDDATE,
+                ASSIGNTO, ASSIGNEDON  
+                FROM faisallubis.TIKET_ITSM 
+                WHERE STATUS = 'Active' AND to_char(CREATEDON, 'dd-mm-yyyy') = ?
+                and SERVICEFAMILY like ?
+        ";
+        $query = $this->db->query($sql,$params);
+        if ($query->num_rows() > 0) {
+            $result = $query->result_array();
+            //$query->free_result();
+            return $result;
+        } else {
+            return NULL;
+        }
+    }
+
+
+    public function get_pkg_detail_incident($params){
+        $msg_out = '';
+        $results = '';
+        $this->pblmig_db = $this->load->database('pblmig', true);
+        if (!$this->pblmig_db) {
+            $m = oci_error();
+            trigger_error(htmlentities($m['message']), E_USER_ERROR);
+        }
+
+        $stid = oci_parse($this->pblmig_db->conn_id, 'begin OPHARAPP.PKG_TESTING.GET_DATA_INCIDENT(:IN_servicefamily, :IN_SERVICEGROUP, :IN_SERVICETYPE, :OUT_DATA_SERVICEGROUP, :OUT_DATA_SERVICETYPE, :OUT_DATA_INCIDENT, :OUT_MESSAGE); end;');
+        $OUT_DATA_SERVICEGROUP = oci_new_cursor($this->pblmig_db->conn_id);
+        $OUT_DATA_SERVICETYPE = oci_new_cursor($this->pblmig_db->conn_id);
+        $OUT_DATA_INCIDENT = oci_new_cursor($this->pblmig_db->conn_id);
+
+        //Send parameters variable  value  lenght
+        oci_bind_by_name($stid, ':IN_servicefamily', $params['SERVICEFAMILY']) or die('Error binding PAGENUMBER');
+        oci_bind_by_name($stid, ':IN_SERVICEGROUP', $params['SERVICEGROUP']) or die('Error binding IN_SERVICEGROUP');
+        oci_bind_by_name($stid, ':IN_SERVICETYPE', $params['SERVICETYPE']) or die('Error binding IN_SERVICETYPE');
+        oci_bind_by_name($stid, ':OUT_DATA_SERVICEGROUP', $OUT_DATA_SERVICEGROUP,-1, OCI_B_CURSOR) or die('Error binding OUT_DATA_SERVICEGROUP');
+        oci_bind_by_name($stid, ':OUT_DATA_SERVICETYPE', $OUT_DATA_SERVICETYPE,-1, OCI_B_CURSOR) or die('Error binding OUT_DATA_SERVICETYPE');
+        oci_bind_by_name($stid, ':OUT_DATA_INCIDENT', $OUT_DATA_INCIDENT,-1, OCI_B_CURSOR) or die('Error binding OUT_DATA_INCIDENT');
+        oci_bind_by_name($stid, ':OUT_MESSAGE', $msg_out,100, SQLT_CHR) or die('Error binding string12');
+
+
+        //Bind Cursor     put -1
+        $func_result = oci_execute($stid);
+        if($func_result){
+            oci_execute($OUT_DATA_SERVICEGROUP, OCI_DEFAULT);
+            oci_execute($OUT_DATA_SERVICETYPE, OCI_DEFAULT);
+            oci_execute($OUT_DATA_INCIDENT, OCI_DEFAULT);
+            oci_fetch_all($OUT_DATA_SERVICEGROUP, $cursor['OUT_DATA_SERVICEGROUP'], null, null, OCI_FETCHSTATEMENT_BY_ROW);
+            oci_fetch_all($OUT_DATA_SERVICETYPE, $cursor['OUT_DATA_SERVICETYPE'], null, null, OCI_FETCHSTATEMENT_BY_ROW);
+            oci_fetch_all($OUT_DATA_INCIDENT, $cursor['OUT_DATA_INCIDENT'], null, null, OCI_FETCHSTATEMENT_BY_ROW);
+          //echo '<br>';
+            $results = $cursor;
+          //print_r($cursor);  
+        }else{
+            $e = oci_error($stid);
+            $results =  $e['message'];
+        } 
+        oci_free_statement($stid);
+        oci_close($this->pblmig_db->conn_id);
+
+        return $results;
+
+    }
+
 
 // </editor-fold>
 

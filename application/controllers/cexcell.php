@@ -28,6 +28,7 @@ class cexcell extends CI_Controller {
 	
 
 	public function index() {
+
 		$data['title'] = "Upload Data ITSM";
 		$data['konten'] = "vUploadExcell";
 		/* start of pagination --------------------- */
@@ -59,12 +60,19 @@ class cexcell extends CI_Controller {
         // jadi untuk oracle
 		$pagenumber = (($start -1 )/10) + 1 ;
 		$params = array(($pagenumber ), $config['per_page']);
-		$data['uploadItsm'] = $this->mexcell->get_list_tiket_itsm($params);
+		$data['uploadItsm'] = $this->mexcell->get_list_tiket_itsm_pkg($params);
 		$this->load->view('home', $data);
+		
+// $message = $this->mexcell->insert_itsm_upload($params);
+// print_r($message);
 	}
 
 	//import database
 	public function importDataExcell(){
+		
+			if(!empty($this->input->post("btn_kirim_itsm", TRUE))){
+				$this->kirim_to_itsm();
+			}
 		try 
 		{
 			$inputFileName = $_FILES['file']['tmp_name'];
@@ -74,6 +82,9 @@ class cexcell extends CI_Controller {
 			$reader = ReaderFactory::create(Type::XLSX); //set Type file xlsx
 			$reader->open($inputFileName); //open the file          
 
+			if($this->input->post("replace", TRUE) == 'REPLACE'){
+				$this->mexcell->delete_itsm_upload();
+			}
 			//echo "<pre>";           
 			$i=0;
 			
@@ -127,6 +138,7 @@ class cexcell extends CI_Controller {
 							'ASSIGNEDON' => $ASSIGNEDON->format("d/m/Y H:i:s"),
 							//'TGLUPLOAD' => $row[32],
 							'UPLOADBY' => $this->session->userdata('id_user'),
+							'REPLACE' => $this->input->post("replace", TRUE)
 						);
 						
 					}
@@ -135,19 +147,31 @@ class cexcell extends CI_Controller {
 				}
 				
 			}
-			$message = $this->mexcell->insert2($params);             
-			//print_r($params); exit();
+			$message = $this->mexcell->insert_itsm_upload($params);             
+			//print_r($message); exit();
 			$reader->close();
 			if($message == 'sukses'){
 				$this->session->set_flashdata('pesan', 'Data berhasil ditambahkan.');
 				redirect("cexcell");
 			}else{
-				$this->session->set_flashdata('gagal', $message['message']);
+				$this->session->set_flashdata('gagal', $message);
 				redirect("cexcell");
 			}
 
 		} catch (Exception $e) {
 			$this->session->set_flashdata('gagal', $e->getMessage());
+			redirect("cexcell");
+		}
+	}
+
+	public function kirim_to_itsm(){
+		$result = $this->mexcell->kirim_to_itsm();             
+		//print_r($message); exit();
+		if($result == 'sukses'){
+			$this->session->set_flashdata('pesan', 'Data berhasil dikirim.');
+			redirect("cexcell");
+		}else{
+			$this->session->set_flashdata('gagal', $result);
 			redirect("cexcell");
 		}
 	}

@@ -10,7 +10,7 @@ $PESAN = $this->session->userdata('PESAN');
       <div class="row">
         <div class="col-md-12">
           <div class="box box-primary">
-            <form id="form_upload" action="<?php echo site_url('statistik/search_process/'); ?>" class="form-horizontal" method="POST" enctype="multipart/form-data" >
+            <form id="form_upload" action="<?php echo site_url('statistik/search_process_bulanan/'); ?>" class="form-horizontal" method="POST" enctype="multipart/form-data" >
               <div class="box-body">
                 <div class="row">
                   <div class="col-md-3">
@@ -191,6 +191,9 @@ $PESAN = $this->session->userdata('PESAN');
                 <a href="<?php echo base_url('statistik');?>" class="btn btn-success btn-sm ad-click-event">
                   LIHAT STATISTIK PERHARI H-1
                 </a>
+                <a href="<?php echo base_url('statistik/harian');?>" class="btn btn-success btn-sm ad-click-event">
+                  LIHAT STATISTIK PERHARI
+                </a>
               </p>
             </div>
           </div>
@@ -226,11 +229,11 @@ $PESAN = $this->session->userdata('PESAN');
     yAxis: [{
       min: 0,
       title: {
-        text: 'Employees'
+        text: 'TIKET'
       }
     }, {
       title: {
-        text: 'Profit (millions)'
+        text: '-'
       },
       opposite: true
     }],
@@ -290,11 +293,11 @@ $PESAN = $this->session->userdata('PESAN');
     yAxis: [{
       min: 0,
       title: {
-        text: 'Employees'
+        text: 'Tiket'
       }
     }, {
       title: {
-        text: 'Profit (millions)'
+        text: '-'
       },
       opposite: true
     }],

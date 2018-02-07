@@ -241,21 +241,42 @@
         
         <?php
         }
-        elseif ($konten=='statistik/index') {
+        elseif ($konten=='statistik/index' or $konten=='statistik/harian') {
         ?>
         <script src="<?php echo base_url('assets/plugins/datatables/jquery.dataTables.min.js');?>" type="text/javascript"></script>
         <script src="<?php echo base_url('assets/plugins/datatables/dataTables.bootstrap.min.js');?>" type="text/javascript"></script>
         <script src="<?php echo base_url('assets/plugins/jqueryform/jquery.form.js');?>"></script>
+        <link href="<?php echo base_url('assets/plugins/datepicker/datepicker3.css');?>" rel="stylesheet" type="text/css" />
+        <script src="<?php echo base_url('assets/plugins/datepicker/bootstrap-datepicker.js');?>" type="text/javascript"></script>
+        <?php
+        }elseif ($konten=='vUploadExcell'){
+        ?>
+            <style>
+            .table th {
+                text-align: center; 
+                background-color: #99cc00;
+                color: white;
+            }
+            .table-bordered>thead>tr>th, .table-bordered>tbody>tr>th, .table-bordered>tfoot>tr>th, .table-bordered>thead>tr>td, .table-bordered>tbody>tr>td, .table-bordered>tfoot>tr>td {
+                border: 2px solid #f7f7f7;
+                font-size: 10px;
+            }
+            
+            </style>
+            <script src="<?php echo base_url('assets/plugins/jqueryform/jquery.form.js');?>"></script>
+            <script src="<?php echo base_url('assets/plugins/datatables/jquery.dataTables.min.js');?>" type="text/javascript"></script>
+            <script src="<?php echo base_url('assets/plugins/datatables/dataTables.bootstrap.min.js');?>" type="text/javascript"></script>
         <?php
         }
         ?>
+        
         
     </head>
     <body class="skin-blue fixed sidebar-collapse">
         <div class="wrapper">
             <header class="main-header">
                 <nav class="navbar navbar-static-top" role="navigation">
-                    <a href="" class="logo"> Monitoring Rekonsiliasi Laporan AP2T</a>
+                    <a href="" class="logo"> MONITORING INCIDENT</a>
                     <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
                         <span class="sr-only">Toggle navigation</span>
                     </a>

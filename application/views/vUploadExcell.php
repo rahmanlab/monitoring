@@ -1,9 +1,7 @@
-
 <input type="hidden" value="" id="noagendaVALUE">
 <section class="content">
     <div class="row">
         <div class="col-md-12">
-            
            <?php $flash_pesan = $this->session->flashdata('pesan') ?>
            <?php if (!empty($flash_pesan)) : ?>
             <div class="alert fade in  alert-success alert-dismissible" role="alert" id="auto-hide">
@@ -30,17 +28,26 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="col-sm-3 control-label"><strong>File Import</strong></label>
-                                <div class="col-sm-7">
-                                 <input type="file" name="file" value="" class="form-control">
-                             </div>
-                         </div>
-                     </div>
-                 </div>
-             </div>
-             <div class="box-footer">
-                <div class="btn-group">
-                    <button class="btn btn-primary"><span class="fa fa-print"><strong> Upload Data To ITSM </strong></button>
+                                <div class="col-sm-6">
+                                    <input type="file" name="file" value="">
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label"><strong>Replace File</strong></label>
+                                <div class="col-sm-6">
+                                    <input type="checkbox" name="replace" id="replace" value="REPLACE" checked>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="box-footer">
+                        <button type="submit" name="btn_upload_itsm" id="btn_upload_itsm" value="upload" class="btn btn-default"><span class="fa fa-upload"><strong> Upload Excel</strong></button>
+                        <button type="submit" name="btn_kirim_itsm" id="btn_kirim_itsm" value="kirim" class="btn btn-primary pull-right"><span class="fa fa-arrow-right"><strong> Kirim Data To ITSM </strong></button>
                 </div>
             </form>
         </div>
@@ -49,45 +56,205 @@
         <div class="box box-primary">
             <div class="box-body">
                 <div class="table-responsive">
-                    <table class="table table-bordered table-hover">
+                    <table class="table table-bordered table-hover table-striped">
                         <thead>
-                            <tr style="background-color:#9C0; color:white;">
-                                <th width="5%">INCIDENT</th>
-                                <th width="10%">CASEOWNER</th>
-                                <th width="10%">CASEOWNEREMAIL</th>
-                                <th width="5%">COMPLAINANT</th>
-                                <th width="10%">COMPLAINANTEMAIL</th>
-                                <th width="15%">SUMMARY</th>
-                                <th width="5%">SOURCE</th>				
-                                <th width="5%">CALLTYPE</th>				
-                                <th width="5%">STATUS</th>
-                                <th width="5%">CREATEDBY</th>
-                                <th width="5%">SERVICEFAMILY</th>
-                                <th width="10%">SERVICEGROUP</th>
-                                <th width="10%">SERVICETYPE</th>
+                            <tr>
+                                <th>INCIDENT</th>
+                                <th>CASEOWNER</th>
+                                <th>CASEOWNEREMAIL</th>
+                                <th>COMPLAINANT</th>
+                                <th>COMPLAINANTEMAIL</th>
+                                <th>SUMMARY</th>
+                                <th>SOURCE</th>				
+                                <th>CALLTYPE</th>				
+                                <th>STATUS</th>
+                                <th>CREATEDBY</th>
+                                <th>SERVICEFAMILY</th>
+                                <th>SERVICEGROUP</th>
+                                <th>SERVICETYPE</th>
+                                <th> CAUSE </th>
+                                <th> RESOLUTION </th>
+                                <th> CREATEDBY </th>
+                                <th> CREATEDON </th>
+                                <th> RESOLVEDBY </th>
+                                <th> RESOLVEDON </th>
+                                <th> MODIFIEDBY </th>
+                                <th> MODIFIEDON </th>
+                                <th> CLOSEDBY </th>
+                                <th> CLOSEDDATE </th>
+                                <th> SLACLASS </th>
+                                <th> SLALEVEL1 </th>
+                                <th> SLALEVEL2 </th>
+                                <th> SLALEVEL3 </th>
+                                <th> PRIORITY </th>
+                                <th> PRIORITYNAME </th>
+                                <th> ASSIGNTO </th>
+                                <th> FIRSTCALLRESOLUTION </th>
+                                <th> ASSIGNEDON </th>
                             </tr>
                         </thead>
+						<tbody>
                         <?php
-                        foreach($uploadItsm as $itsm){
-							//foreach($row = oci_fetch_array($stid, OCI_ASSOC+OCI_RETURN_LOBS)){	
+                        foreach($uploadItsm as $itsm){	
                          ?>
-                         <tbody>
-                             <td><?php echo number_format($itsm['INCIDENT'], 0, '', '');?></td>
-                             <td><?php echo $itsm['CASEOWNER'];?></td>
-                             <td><?php echo $itsm['CASEOWNEREMAIL'];?></td>
-                             <td><?php echo $itsm['COMPLAINANT'];?></td>
-                             <td><?php echo $itsm['COMPLAINANTEMAIL'];?></td>
-                             <td><?php echo $itsm['SUMMARY'];?></td>
-                             <td><?php echo $itsm['SOURCE'];?></td>
-                             <td><?php echo $itsm['CALLTYPE'];?></td>
-                             <td><?php echo $itsm['STATUS'];?></td>
-                             <td><?php echo $itsm['CREATEDBY'];?></td>
-                             <td><?php echo $itsm['SERVICEFAMILY'];?></td>
-                             <td><?php echo $itsm['SERVICEGROUP'];?></td>
-                             <td><?php echo $itsm['SERVICETYPE'];?></td>
-                         </tbody>
-                         <?php };?>
-                     </table>
+						<tr>
+                             <td>
+								<?php 
+									echo number_format($itsm['INCIDENT'], 0, '', '');
+								?>
+							</td>
+							<td>
+								<?php
+									$caseowner = strlen($itsm['CASEOWNER']);
+									if($caseowner > 7){
+										echo substr($itsm['CASEOWNER'], 0, 5).' '."..";
+									}else{
+										echo $itsm['CASEOWNER'];
+									}
+								?>
+							</td>
+							<td>
+								<?php
+									$caseowneremail = strlen($itsm['CASEOWNEREMAIL']);
+									if($caseowneremail > 18){
+										echo substr($itsm['CASEOWNEREMAIL'], 0, 11).' '."..";
+									}else{
+										echo $itsm['CASEOWNEREMAIL'];
+									}
+								?>
+							</td>
+							<td>
+								<?php
+									$complaint = strlen($itsm['COMPLAINANT']);
+									if($complaint > 9){
+										echo substr($itsm['COMPLAINANT'], 0, 8).' '."..";
+									}else{
+										echo $itsm['COMPLAINANT'];
+									}
+								?>
+							</td>
+							<td>
+								<?php
+									$complaintemail = strlen($itsm['COMPLAINANTEMAIL']);
+									if($complaintemail > 18){
+										echo substr($itsm['COMPLAINANTEMAIL'], 0, 15).' '."..";
+									}else{
+										echo $itsm['COMPLAINANTEMAIL'];
+									}
+								?>
+							</td>
+                            <td>
+								<?php
+									$summary = strlen($itsm['SUMMARY']);
+									if($summary > 6){
+										echo substr($itsm['SUMMARY'], 0, 6).' '."..";
+									}else{
+										echo $itsm['SUMMARY'];
+									}
+								?>
+							</td>
+                            <td><?php echo $itsm['SOURCE'];?></td>
+                            <td>
+								<?php
+									$calltype = strlen($itsm['CALLTYPE']);
+									if($calltype > 8){
+										echo substr($itsm['CALLTYPE'], 0, 7).' '."..";
+									}else{
+										echo $itsm['CALLTYPE'];
+									}
+								?>
+							</td>
+                            <td><?php echo $itsm['STATUS'];?></td>
+                            <td>
+								<?php
+									$createby = strlen($itsm['CREATEDBY']);
+									if($createby > 15){
+										echo substr($itsm['CREATEDBY'], 0, 8).' '."..";
+									}else{
+										echo $itsm['CREATEDBY'];
+									}
+								?>
+							</td>
+                            <td><?php echo substr($itsm['SERVICEFAMILY'], 3, 13);?></td>
+                            <td>
+								<?php
+									$servicegroup = strlen($itsm['SERVICEGROUP']);
+									if($servicegroup > 11){
+										echo substr($itsm['SERVICEGROUP'], 3, 11).' '."..";
+									}else{
+										echo $itsm['SERVICEGROUP'];
+									}
+								?>
+							</td>
+                            <td>
+								<?php
+									$servicetype = strlen($itsm['SERVICETYPE']);
+									if($servicetype > 11){
+										echo substr($itsm['SERVICETYPE'], 3, 10).' '."..";
+									}else{
+										echo $itsm['SERVICETYPE'];
+									}
+								?>
+							</td>
+							<td>
+								<?php
+									$servicetype = strlen($itsm['CAUSE']);
+									if($servicetype > 10){
+										echo substr($itsm['CAUSE'], 0, 5).''."..";
+									}else{
+										echo $itsm['CAUSE'];
+									}
+								?>
+							</td>
+							<td>
+								<?php
+									$resolution = strlen($itsm['RESOLUTION']);
+									if($resolution > 10){
+										echo substr($itsm['RESOLUTION'], 0, 9).''."..";
+									}else{
+										echo $itsm['RESOLUTION'];
+									}
+								?>
+							</td>
+							<td>
+								<?php
+									$createby = strlen($itsm['CREATEDBY']);
+									if($createby > 9){
+										echo substr($itsm['CREATEDBY'], 0, 8).''."..";
+									}else{
+										echo $itsm['CREATEDBY'];
+									}
+								?>
+							</td>
+							<td><?php echo $itsm['CREATEDON'];?></td>
+							<td><?php echo $itsm['RESOLVEDBY'];?></td>
+							<td><?php echo $itsm['RESOLVEDON'];?></td>
+							<td><?php echo $itsm['MODIFIEDBY'];?></td>
+							<td><?php echo $itsm['MODIFIEDON'];?></td>
+							<td><?php echo $itsm['CLOSEDBY'];?></td>
+							<td><?php echo $itsm['CLOSEDDATE'];?></td>
+							<td><?php echo $itsm['SLACLASS'];?></td>
+							<td><?php echo $itsm['SLALEVEL1'];?></td>
+							<td><?php echo $itsm['SLALEVEL2'];?></td>
+							<td><?php echo $itsm['SLALEVEL3'];?></td>
+							<td><?php echo $itsm['PRIORITY'];?></td>
+							<td><?php echo $itsm['PRIORITYNAME'];?></td>
+							<td>
+								<?php 
+									$resolution = strlen($itsm['ASSIGNTO']);
+									if($resolution > 8){
+										echo substr($itsm['ASSIGNTO'], 0, 7).''."..";
+									}else{
+										echo $itsm['ASSIGNTO'];
+									}
+								?>
+							</td>
+							<td><?php echo $itsm['FIRSTCALLRESOLUTION'];?></td>
+							<td><?php echo $itsm['ASSIGNEDON'];?></td>
+						</tr>
+						<?php };?>
+						</tbody>
+					</table>
                  </div>
                  <ul class="pagination pull-left">
                     <li>Menampilkan <?php echo empty($pagination['start']) ?  '0' :  $pagination['start']; ?>  - <?php echo empty($pagination['end']) ?  '0' :  $pagination['end']; ?> dari total <?php echo empty($pagination['total']) ?  '0' :  $pagination['total']; ?> data</li>
@@ -104,36 +271,18 @@
 
 </section>
 <script type="text/javascript">
+    $( "#btn_kirim_itsm" ).click(function() {
+      return confirm( "Data akan dikirimkan ke tabel TIKET_ITSM. Lanjutkan ?" );
+    });
 
-    /*
-    // set first
+    $( "#btn_upload_itsm" ).click(function() {
 
-    function loaddata() {
-        var noagenda = $('#noagenda').val();
-        var noba = $('#noba').val();
-        var no_tiket = $('#no_tiket').val();
-        var jenis_transaksi = $('#jenis_transaksi').val();
-        var tgl_catat = $('#tgl_catat').val();
-        var perihal = $('#perihal').val();
-        var idpel = $('#idpel').val();
-        var id_user = $('#id_user').val();
-        var table;
-        table = $('#table').DataTable({
-            "ajax": {
-                "url": "<?php echo base_url('home/dokumen_load_params') ?>",
-                "type": "POST",
-                "data": {"noagenda": noagenda, "noba": noba, "jenis_transaksi": jenis_transaksi, "id_user": id_user, "idpel": idpel, "no_tiket": no_tiket, "tgl_catat": tgl_catat, "perihal": perihal},
-            },
-            "paging": false,
-            // "pageLength": 3,
-            "lengthChange": false,
-            "searching": false,
-            "ordering": false,
-            "info": false,
-            "autoWidth": false,
-        });
-        // $('#bcari').attr('disabled', 'disabled');
-        table.destroy();
-    } */
-
+        if($("#replace").prop('checked') == true){
+            
+            return confirm( "Data pada file akan diupload. Lanjutkan ?" );
+        }else{
+            return confirm( "Data pada file akan diupload tanpa replace. Lanjutkan ? " + $('#btn_upload_itsm').is(":checked") );
+        }
+    });
 </script>
+

@@ -14,37 +14,6 @@ class mexcell extends CI_Model {
     }
 }  
 
-function save_data_dokumen($save) {
-        // set koneksi
-    $this->pblmig_db = $this->load->database('pblmig', true);
-    if (!$this->pblmig_db) {
-        $m = oci_error();
-        trigger_error(htmlentities($m['message']), E_USER_ERROR);
-    }
-    $results = '';
-    $msg_out = 'TEST';
-
-    $insert = 'INSERT INTO UPLOAD_LOG(ID_UPLOAD,NOAGENDA,NAMA_FILE,MDD,MDB) 
-    VALUES(:ID_UPLOAD, :NOAGENDA, :NAMA_FILE, CURRENT_TIMESTAMP, :MDB)';
-    $send = oci_parse($this->pblmig_db->conn_id, $insert);
-        //Send parameters variable  value  lenght
-    oci_bind_by_name($send, ':ID_UPLOAD', $save['id_upload']) or die('Error binding string1');
-    oci_bind_by_name($send, ':NOAGENDA', $save['noagenda']) or die('Error binding string2');
-    oci_bind_by_name($send, ':NAMA_FILE', $save['nama_file']) or die('Error binding string3');
-    oci_bind_by_name($send, ':MDB', $this->session->userdata('id_user')) or die('Error binding string4');
-
-    if (oci_execute($send)) {
-        $results = $msg_out;
-    } else {
-        $e = oci_error($send);
-        $results = $e['message'];
-    }
-    oci_free_statement($send);
-    oci_close($this->pblmig_db->conn_id);
-
-    return $results;
-}
-
 public function insert2($params) {
         // Before running, create the table:
 //     CREATE TABLE MYTABLE (mykey NUMBER, myclob CLOB);
@@ -131,6 +100,115 @@ public function insert2($params) {
         return 'sukses';
     }
 
+
+
+    function insert_itsm_upload($params) {        
+        $results = '';
+        $noagendalama = ""; 
+        $tiket = "999998"; 
+        $nama = "ARIF";
+        $msg_out = '';
+        $retval = '';
+
+        $this->pblmig_db = $this->load->database('pblmig', true);
+        foreach ($params as $dt) {
+
+                // conversi
+            $CREATEDON = ($dt['CREATEDON'] == '30/12/1899 00:00:00') ? NULL : $dt['CREATEDON'];
+            $RESOLVEDON = ($dt['RESOLVEDON'] == '30/12/1899 00:00:00') ? NULL : $dt['RESOLVEDON'];
+            $MODIFIEDON = ($dt['MODIFIEDON'] == '30/12/1899 00:00:00') ? NULL : $dt['MODIFIEDON'] ;
+            $CLOSEDDATE = ($dt['CLOSEDDATE'] == '30/12/1899 00:00:00') ? NULL : $dt['CLOSEDDATE'] ;
+            $SLALEVEL1 = ($dt['SLALEVEL1'] == '30/12/1899 00:00:00') ? NULL : $dt['SLALEVEL1'] ;
+            $SLALEVEL2 = ($dt['SLALEVEL2'] == '30/12/1899 00:00:00') ? NULL : $dt['SLALEVEL2'] ;
+            $SLALEVEL3 = ($dt['SLALEVEL3'] == '30/12/1899 00:00:00') ? NULL : $dt['SLALEVEL3'] ;
+            $ASSIGNEDON = ($dt['ASSIGNEDON'] == '30/12/1899 00:00:00') ? NULL : $dt['ASSIGNEDON'] ;
+        
+            $stid = oci_parse($this->pblmig_db->conn_id, 'begin PKG_TESTING.INSERT_ITSM_UPLOAD(:IN_INCIDENT, :IN_CASEOWNER, :IN_CASEOWNEREMAIL, :IN_COMPLAINANT, :IN_COMPLAINANTEMAIL, :IN_SUMMARY, :IN_SOURCE, :IN_CALLTYPE, :IN_STATUS, :IN_DESCRIPTION,:IN_SERVICEFAMILY, :IN_SERVICEGROUP, :IN_SERVICETYPE, :IN_CAUSE ,:IN_RESOLUTION, :IN_CREATEDBY, :IN_CREATEDON,:IN_RESOLVEDBY, :IN_RESOLVEDON, :IN_MODIFIEDBY, :IN_MODIFIEDON, :IN_CLOSEDBY, :IN_CLOSEDDATE,  :IN_SLACLASS,:IN_SLALEVEL1, :IN_SLALEVEL2,  :IN_SLALEVEL3,  :IN_PRIORITY, :IN_PRIORITYNAME, :IN_ASSIGNTO, :IN_FIRSTCALLRESOLUTION, :IN_ASSIGNEDON,:IN_UPLOADBY,:IN_REPLACE, :OUT_RETVAL, :OUT_MESSAGE); END;');
+
+            //Send parameters variable  value  lenght
+            oci_bind_by_name($stid, ':IN_INCIDENT', $dt['INCIDENT']) or die('Error binding IN_INCIDENT') ;
+            oci_bind_by_name($stid, ':IN_CASEOWNER', $dt['CASEOWNER']) or die('Error binding IN_CASEOWNER');
+            oci_bind_by_name($stid, ':IN_CASEOWNEREMAIL', $dt['CASEOWNEREMAIL']) or die('Error binding noagendalama');
+            oci_bind_by_name($stid, ':IN_COMPLAINANT', $dt['COMPLAINANT']) or die('Error binding noagendalama');
+            oci_bind_by_name($stid, ':IN_COMPLAINANTEMAIL', $dt['COMPLAINANTEMAIL']) or die('Error binding noagendalama');
+            oci_bind_by_name($stid, ':IN_SUMMARY', $dt['SUMMARY']) or die('Error binding noagendalama');
+            oci_bind_by_name($stid, ':IN_SOURCE', $dt['SOURCE']) or die('Error binding noagendalama');
+            oci_bind_by_name($stid, ':IN_CALLTYPE', $dt['CALLTYPE']) or die('Error binding noagendalama');
+            oci_bind_by_name($stid, ':IN_STATUS', $dt['STATUS']) or die('Error binding noagendalama');
+            oci_bind_by_name($stid, ':IN_DESCRIPTION', $dt['DESCRIPTION']) or die('Error binding noagendalama');
+            oci_bind_by_name($stid, ':IN_SERVICEFAMILY', $dt['SERVICEFAMILY']) or die('Error binding noagendalama');
+            oci_bind_by_name($stid, ':IN_SERVICEGROUP', $dt['SERVICEGROUP']) or die('Error binding noagendalama');
+            oci_bind_by_name($stid, ':IN_SERVICETYPE', $dt['SERVICETYPE']) or die('Error binding noagendalama');
+            oci_bind_by_name($stid, ':IN_CAUSE', $dt['CAUSE']) or die('Error binding noagendalama');
+            oci_bind_by_name($stid, ':IN_RESOLUTION', $dt['RESOLUTION']) or die('Error binding noagendalama');
+            oci_bind_by_name($stid, ':IN_CREATEDBY', $dt['CREATEDBY']) or die('Error binding noagendalama');
+            oci_bind_by_name($stid, ':IN_CREATEDON', $CREATEDON) or die('Error binding noagendalama');
+            oci_bind_by_name($stid, ':IN_RESOLVEDBY', $dt['RESOLVEDBY']) or die('Error binding noagendalama');
+            oci_bind_by_name($stid, ':IN_RESOLVEDON', $RESOLVEDON) or die('Error binding noagendalama');
+            oci_bind_by_name($stid, ':IN_MODIFIEDBY', $dt['MODIFIEDBY']) or die('Error binding noagendalama');
+            oci_bind_by_name($stid, ':IN_MODIFIEDON', $MODIFIEDON) or die('Error binding noagendalama');
+            oci_bind_by_name($stid, ':IN_CLOSEDBY', $dt['CLOSEDBY']) or die('Error binding noagendalama');
+            oci_bind_by_name($stid, ':IN_CLOSEDDATE', $CLOSEDDATE) or die('Error binding noagendalama');
+            oci_bind_by_name($stid, ':IN_SLACLASS', $dt['SLACLASS']) or die('Error binding noagendalama');
+            oci_bind_by_name($stid, ':IN_SLALEVEL1', $SLALEVEL1) or die('Error binding noagendalama');
+            oci_bind_by_name($stid, ':IN_SLALEVEL2', $SLALEVEL2) or die('Error binding noagendalama');
+            oci_bind_by_name($stid, ':IN_SLALEVEL3', $SLALEVEL3) or die('Error binding noagendalama');
+            oci_bind_by_name($stid, ':IN_PRIORITY', $dt['PRIORITY']) or die('Error binding noagendalama');
+            oci_bind_by_name($stid, ':IN_PRIORITYNAME', $dt['PRIORITYNAME']) or die('Error binding noagendalama');
+            oci_bind_by_name($stid, ':IN_ASSIGNTO', $dt['ASSIGNTO']) or die('Error binding noagendalama');
+            oci_bind_by_name($stid, ':IN_FIRSTCALLRESOLUTION', $dt['FIRSTCALLRESOLUTION']) or die('Error binding noagendalama');
+            oci_bind_by_name($stid, ':IN_ASSIGNEDON', $ASSIGNEDON) or die('Error binding noagendalama');
+            oci_bind_by_name($stid, ':IN_UPLOADBY', $dt['UPLOADBY']) or die('Error binding noagendalama');
+            oci_bind_by_name($stid, ':IN_REPLACE', $dt['REPLACE']) or die('Error binding Replace');
+            oci_bind_by_name($stid, ':OUT_RETVAL', $retval,100, SQLT_CHR) or die('Error binding string12');
+            oci_bind_by_name($stid, ':OUT_MESSAGE', $msg_out,100, SQLT_CHR) or die('Error binding string12');
+
+            if(oci_execute($stid)){
+                if($msg_out != 'sukses'){
+                    oci_close($this->pblmig_db->conn_id);
+                    return $msg_out;
+                }
+            }else{
+                $e = oci_error($stid);
+                $error_msg =  $e['message'].' ----error oci_execute() '. $retval;
+                oci_close($this->pblmig_db->conn_id);
+                return $error_msg;
+            } 
+            oci_free_statement($stid);
+        } // end foreach
+        oci_close($this->pblmig_db->conn_id);
+        return $msg_out;
+    } 
+
+    function kirim_to_itsm() {        
+        $msg_out = '';
+        $retval = '';
+        $user = $this->session->userdata('id_user');
+        $this->pblmig_db = $this->load->database('pblmig', true);
+        $stid = oci_parse($this->pblmig_db->conn_id, 'begin PKG_TESTING.KIRIM_TO_ITSM(:IN_LOGBY, :OUT_RETVAL, :OUT_MESSAGE); END;');
+        //Send parameters variable  value  lenght
+        oci_bind_by_name($stid, ':IN_LOGBY', $user) or die('Error binding IN_LOGBY') ;
+        oci_bind_by_name($stid, ':OUT_RETVAL', $retval,100, SQLT_CHR) or die('Error binding string12');
+        oci_bind_by_name($stid, ':OUT_MESSAGE', $msg_out,100, SQLT_CHR) or die('Error binding string12');
+
+        if(oci_execute($stid)){
+            $result = $msg_out;
+        }else{
+            $e = oci_error($stid);
+            $result =  $e['message'].' ----error oci_execute() '. $retval;
+        } 
+        oci_free_statement($stid);
+        oci_close($this->pblmig_db->conn_id);
+        return $result;
+    } 
+
+    // delete data tiket
+    function delete_itsm_upload() {
+        $sql = "DELETE FROM FAISALLUBIS.TIKET_ITSM_UPLOAD";
+        $query = $this->db->query($sql);
+    }
+
+
     // list data itsm with blob
     public function get_list_tiket_itsm($params) {
         $pagenumber = $params[0];
@@ -186,6 +264,51 @@ public function insert2($params) {
         } else {
             return array();
         }
+    }
+
+
+    public function get_list_tiket_itsm_pkg($params){
+        $IN_PAGENUMBER = $params[0];
+        $IN_PAGESIZE = $params[1];
+        $msg_out = '';
+
+        $results = '';
+        $this->pblmig_db = $this->load->database('pblmig', true);
+        if (!$this->pblmig_db) {
+            $m = oci_error();
+            trigger_error(htmlentities($m['message']), E_USER_ERROR);
+        }
+
+        //$v = '';
+
+
+        $stid = oci_parse($this->pblmig_db->conn_id, 'begin OPHARAPP.PKG_TESTING.GET_ITSM_UPLOAD_PAGINATION(:IN_PAGENUMBER, :IN_PAGESIZE, :OUT_DATA, :OUT_MESSAGE); end;');
+        $OUT_DATA = oci_new_cursor($this->pblmig_db->conn_id);
+
+        //Send parameters variable  value  lenght
+        oci_bind_by_name($stid, ':IN_PAGENUMBER', $IN_PAGENUMBER) or die('Error binding PAGENUMBER');
+        oci_bind_by_name($stid, ':IN_PAGESIZE', $IN_PAGESIZE) or die('Error binding PAGESIZE');
+        oci_bind_by_name($stid, ':OUT_DATA', $OUT_DATA,-1, OCI_B_CURSOR) or die('Error binding OUT_DATA');
+        oci_bind_by_name($stid, ':OUT_MESSAGE', $msg_out,100, SQLT_CHR) or die('Error binding string12');
+
+
+        //Bind Cursor     put -1
+        $func_result = oci_execute($stid);
+        if($func_result){
+            oci_execute($OUT_DATA, OCI_DEFAULT);
+            oci_fetch_all($OUT_DATA, $cursor, null, null, OCI_FETCHSTATEMENT_BY_ROW);
+          //echo '<br>';
+            $results = $cursor;
+          //print_r($cursor);  
+        }else{
+            $e = oci_error($stid);
+            $results =  $e['message'];
+        } 
+        oci_free_statement($stid);
+        oci_close($this->pblmig_db->conn_id);
+
+        return $results;
+
     }
 // </editor-fold>
 
