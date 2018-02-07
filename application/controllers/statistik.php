@@ -109,7 +109,7 @@ class statistik extends CI_Controller {
             $html .= '
             <table class="table table-responsive w-auto">
                   <thead>
-                    <tr style="border-bottom-style: none; border-top-style: none;">
+                    <tr style="border-bottom-style: none; border-top-style: none; background-color: #3C8DBC;">
                       <th>#SERVICEFAMILY : '.$family.'</th>
                       <th></th>
                       <th></th>
@@ -164,8 +164,9 @@ class statistik extends CI_Controller {
                             <i class="'.$id_collapse.' fa fa-plus"></i>
                           </a>
                         </td>
+
                         <td class="bg-light-blue"  width="110px" >SERVICETYPE : </td>
-                        <td width="200px"  style="padding-left:10px">' . $item['SERVICETYPE'] . '</td>
+                        <td width="250px"  style="padding-left:10px">' . $item['SERVICETYPE'] . '</td>
                         <td width="50px"><span class="badge bg-red">' . $item['RECORD'] . '</span></td>
                         <td></td>
                       </tr>

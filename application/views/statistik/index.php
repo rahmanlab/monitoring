@@ -36,42 +36,42 @@ $PESAN = $this->session->userdata('PESAN');
           data: {
             family : family
           },
-          success: function (data) {
-            $("#tb_incident").html(data);
-          }
-        });
+          beforeSend: function () {
+                // non removable loading
+                $('#loading_modal').modal({
+                  backdrop: 'static', keyboard: false
+                });
+              },
+              success: function (data) {
+                $('#loading_modal').modal('hide');
+                $("#tb_incident").html(data);
+                $('#modal_family').modal('show');
+              }
+            });
 
-      // var table;
-      // table = $('#tb_family_detail').DataTable({
-      //   "ajax": {
-      //     "url": "<?php echo base_url('statistik/dokumen_load_params') ?>",
-      //     "type": "POST",
-      //     "data": {"family": family},
-      //   },
-      //   "paging": false,
-      //   "pageLength": 3,
-      //   "lengthChange": true,
-      //   "searching": true,
-      //   "ordering": true,
-      //   "info": true,
-      //   "autoWidth": true,
-      // });
-      //   // $('#bcari').attr('disabled', 'disabled');
-      //   table.destroy();
-        //
-        $('#modal_family').modal('show');
       } 
 
+      $(".changeIcon").on("click",function() {
+       $(".changeIcon").each(function() {
+         var id_collapse = $(".changeIcon").attr("data-id");
+         $("#" + id_collapse).on("shown.bs.collapse", function() {
+          $("#fa_" + id_collapse).addClass("fa-minus").removeClass("fa-plus");
+        });
+         $("#" + id_collapse).on("hidden.bs.collapse", function() {
+          $("#fa_" + id_collapse).addClass("fa-plus").removeClass("fa-minus");
+        });
+       });
+     });
 
       function changeIcon(id_collapse) {
        // alert('Id = ' + id_collapse);
-        $("#" + id_collapse).on('shown.bs.collapse', function() {
-          $("#fa_" + id_collapse).addClass('fa-minus').removeClass('fa-plus');
-        });
-        $("#" + id_collapse).on('hidden.bs.collapse', function() {
-          $("#fa_" + id_collapse).addClass('fa-plus').removeClass('fa-minus');
-        });
-      }
+       $("#" + id_collapse).on('shown.bs.collapse', function() {
+        $("#fa_" + id_collapse).addClass('fa-minus').removeClass('fa-plus');
+      });
+       $("#" + id_collapse).on('hidden.bs.collapse', function() {
+        $("#fa_" + id_collapse).addClass('fa-plus').removeClass('fa-minus');
+      });
+     }
 
       // function changeIconGrid2(id_collapse2) {
       //  // alert('Id = ' + id_collapse);
@@ -85,238 +85,223 @@ $PESAN = $this->session->userdata('PESAN');
 
     </script>
 
-<style type="text/css">
-.w-auto{
+    <style type="text/css">
+    .w-auto{
 
-    margin-bottom: 2px;
-}
-.w-auto tbody > tr > td{
-  color: #000;
-}
-.w-auto > thead > tr > th, .w-auto > tbody > tr > th, .w-auto > tfoot > tr > th, .w-auto > thead > tr > td, .w-auto > tbody > tr > td, .w-auto > tfoot > tr > td {
-    padding: 0px;
-    line-height: 1.42857;
-    vertical-align: top;
-    border-top: 1px solid #DDD;
-    text-align: left;  
-}
-.detil > tbody > tr > td{
-  font-size: 10px;
-}
+      margin-bottom: 2px;
+    }
+    .w-auto tbody > tr > td{
+      color: #000;
+    }
+    .w-auto > thead > tr > th, .w-auto > tbody > tr > th, .w-auto > tfoot > tr > th, .w-auto > thead > tr > td, .w-auto > tbody > tr > td, .w-auto > tfoot > tr > td {
+      padding: 0px;
+      line-height: 1.42857;
+      vertical-align: top;
+      border-top: 1px solid #DDD;
+      text-align: left;  
+    }
+    .detil > tbody > tr > td{
+      font-size: 10px;
+    }
 
-.detil > thead > tr > th{
-  font-size: 10px;
-  padding-left: 5px;
-  padding-right: 5px
-}
-.pohon1{
-  margin-left: 30px;
-}
+    .detil > thead > tr > th{
+      font-size: 10px;
+      padding-left: 5px;
+      padding-right: 5px;
+      background-color: #3C8DBC;
+    }
+    .pohon1{
+      margin-left: 30px;
+    }
+    .scroll-y {
+      max-height: 300px;
+      overflow-y: auto;
+    }
 
-</style>
+  </style>
 
-    <input type="hidden" value="" id="noagendaVALUE">
-    <section class="content">
+  <input type="hidden" value="" id="noagendaVALUE">
+  <section class="content">
 
-      <!-- Main row -->
-      <div class="row">
-        <!-- Left col -->
-        <div class="col-md-8">
-
-
-          <!-- Info boxes -->
+    <!-- Main row -->
+    <div class="row">
+      <!-- Left col -->
+      <div class="col-md-8">
 
 
-          <div class="row">
-            <div class="col-md-12">
+        <!-- Info boxes -->
 
-            </div>
+
+        <div class="row">
+          <div class="col-md-12">
+
           </div>
-          <div class="row">
-            <div class="col-md-12">
-              <!-- BAR CHART -->
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <!-- BAR CHART -->
 
-              <div class="box box-success">
-                <div class="box-header with-border">
-                  <h3 class="box-title">Grafik Tiket ITSM</h3>
-                  <div class="box-tools pull-right">
-                    <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
-                    <button class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
-                  </div>
-                </div><!-- /.box-header -->
-                <div class="box-body">
-                  <div class="row">
-                    <div class="col-md-12">
-                      <div class="chart-responsive">
-                        <div id="family_chart" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
-                        <!-- <canvas id="pieChart" height="150"></canvas> -->
-                      </div><!-- ./chart-responsive -->
-                    </div><!-- /.col -->
-                  </div><!-- /.row -->
-                </div><!-- /.box-body -->
-
-                <!-- /.box-header -->
-                <div class="box-body">
-                  <div class="box-group" id="accordion"></div>
+            <div class="box box-success">
+              <div class="box-header with-border">
+                <h3 class="box-title">Grafik Tiket ITSM</h3>
+                <div class="box-tools pull-right">
+                  <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                  <button class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
                 </div>
-                <!-- /.box-body -->
-              </div><!-- /.box -->
-            </div><!-- /.col (RIGHT) -->
-          </div><!-- /.row -->
-          <!-- Info boxes -->
-          <div class="row">
-            <div class="col-md-4 col-sm-6 col-xs-12">
-
-              <div class="info-box">
-                <span class="info-box-icon bg-aqua"><i class="fa fa-envelope-o"></i></span>
-                <div class="info-box-content">
-                  <span class="info-box-text">Total Tiket</span>
-                  <span class="info-box-number"><?php echo $total_tiket;?></span>
-                </div><!-- /.info-box-content -->
-              </div><!-- /.info-box -->
-            </div><!-- /.col -->
-            <div class="col-md-4 col-sm-6 col-xs-12">
-              <div class="info-box">
-                <span class="info-box-icon bg-red"><i class="fa fa-file-text-o"></i></span>
-                <div class="info-box-content">
-                  <span class="info-box-text">Tiket Aktif </span>
-                  <span class="info-box-number"><?php echo $tiket_aktif;?></span>
-                </div><!-- /.info-box-content -->
-              </div><!-- /.info-box -->
-            </div><!-- /.col -->
-            <!-- fix for small devices only -->
-            <div class="clearfix visible-sm-block"></div>
-            <div class="col-md-4 col-sm-6 col-xs-12">
-              <div class="info-box">
-                <span class="info-box-icon bg-green"><i class="fa fa-check-square-o"></i></span>
-                <div class="info-box-content">
-                  <span class="info-box-text">Tiket Resolved</span>
-                  <span class="info-box-number"><?php echo $tiket_resolved;?></span>
-                </div><!-- /.info-box-content -->
-              </div><!-- /.info-box -->
-            </div><!-- /.col -->
-          </div><!-- /.row -->
-        </div><!-- /.col -->
-        <div class="col-md-4">
-          <!-- Info Boxes Style 2 -->
-          <div class="info-box bg-yellow">
-            <span class="info-box-icon"><i class="glyphicon glyphicon-calendar"></i></span>
-            <div class="info-box-content">
-              <span class="info-box-text">Jakarta, Indonesia</span>
-              <span class="info-box-number"><?php echo $waktu_sekarang['hari'] . ', ' . $waktu_sekarang['tanggal'] . ' ' . $waktu_sekarang['bulan'] . ' ' . $waktu_sekarang['tahun']; ?></span>
-              <div class="progress">
-                <div class="progress-bar" style="width: 50%"></div>
-              </div>
-              <span class="progress-description">
-                Statistik Tiket Masuk H-1| Div. Pelaporan AP2T
-              </span>
-            </div><!-- /.info-box-content -->
-          </div><!-- /.info-box -->
-          <div class="box box-success">
-            <div class="box-header with-border">
-              <h3 class="box-title">Grafik Total Tiket dan Tiket Resolved H-1 Berdasarkan Family</h3>
-              <div class="box-tools pull-right">
-                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
-                <button class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
-              </div>
-            </div>
-            <div class="box-body">
-              <div class="chart">
-                <div id="container"></div>
-              </div>
-            </div><!-- /.box-body -->
-          </div><!-- /.box -->
-          <div class="box box-success">
-            <div class="box-header with-border">
-              <h3 class="box-title">Grafik Lainnya</h3>
-              <div class="box-tools pull-right">
-                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
-                <button class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
-              </div>
-            </div>
-            <div class="box-body">
-              <div class="chart">
-                <div id="container-test">
-                  <p class="pull-right">
-                    <a href="<?php echo base_url('statistik/harian');?>" class="btn btn-success btn-sm ad-click-event">
-                      LIHAT STATISTIK PERHARI
-                    </a>
-                    <a href="<?php echo base_url('statistik/bulanan');?>" class="btn btn-success btn-sm ad-click-event">
-                      LIHAT STATISTIK PERBULAN
-                    </a>
-                  </p>
-                </div>
-              </div>
-            </div><!-- /.box-body -->
-          </div><!-- /.box -->
-        </div><!-- /.col -->
-      </div><!-- /.row -->
-    </section><!-- /.content -->
-    <div class="modal fade modal-primary" id="modal_family">
-      <div class="modal-dialog modal-lg" style="width: 90%">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span></button>
-              <h4 class="modal-title" id="judul_header">Detail</h4>
-            </div>
-            <div class="modal-body" style="background-color: #2C3B41 !important">
+              </div><!-- /.box-header -->
               <div class="box-body">
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="chart-responsive">
+                      <div id="family_chart" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+                      <!-- <canvas id="pieChart" height="150"></canvas> -->
+                    </div><!-- ./chart-responsive -->
+                  </div><!-- /.col -->
+                </div><!-- /.row -->
+              </div><!-- /.box-body -->
 
-
-                
-
-                <div id="tb_incident">
-
-
-
-
-                </div>
+              <!-- /.box-header -->
+              <div class="box-body">
+                <div class="box-group" id="accordion"></div>
               </div>
-              
+              <!-- /.box-body -->
+            </div><!-- /.box -->
+          </div><!-- /.col (RIGHT) -->
+        </div><!-- /.row -->
+        <!-- Info boxes -->
+        <div class="row">
+          <div class="col-md-4 col-sm-6 col-xs-12">
+
+            <div class="info-box">
+              <span class="info-box-icon bg-aqua"><i class="fa fa-envelope-o"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text">Total Tiket</span>
+                <span class="info-box-number"><?php echo $total_tiket;?></span>
+              </div><!-- /.info-box-content -->
+            </div><!-- /.info-box -->
+          </div><!-- /.col -->
+          <div class="col-md-4 col-sm-6 col-xs-12">
+            <div class="info-box">
+              <span class="info-box-icon bg-red"><i class="fa fa-file-text-o"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text">Tiket Aktif </span>
+                <span class="info-box-number"><?php echo $tiket_aktif;?></span>
+              </div><!-- /.info-box-content -->
+            </div><!-- /.info-box -->
+          </div><!-- /.col -->
+          <!-- fix for small devices only -->
+          <div class="clearfix visible-sm-block"></div>
+          <div class="col-md-4 col-sm-6 col-xs-12">
+            <div class="info-box">
+              <span class="info-box-icon bg-green"><i class="fa fa-check-square-o"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text">Tiket Resolved</span>
+                <span class="info-box-number"><?php echo $tiket_resolved;?></span>
+              </div><!-- /.info-box-content -->
+            </div><!-- /.info-box -->
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.col -->
+      <div class="col-md-4">
+        <!-- Info Boxes Style 2 -->
+        <div class="info-box bg-yellow">
+          <span class="info-box-icon"><i class="glyphicon glyphicon-calendar"></i></span>
+          <div class="info-box-content">
+            <span class="info-box-text">Jakarta, Indonesia</span>
+            <span class="info-box-number"><?php echo $waktu_sekarang['hari'] . ', ' . $waktu_sekarang['tanggal'] . ' ' . $waktu_sekarang['bulan'] . ' ' . $waktu_sekarang['tahun']; ?></span>
+            <div class="progress">
+              <div class="progress-bar" style="width: 50%"></div>
             </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+            <span class="progress-description">
+              Statistik Tiket Masuk H-1| Div. Pelaporan AP2T
+            </span>
+          </div><!-- /.info-box-content -->
+        </div><!-- /.info-box -->
+        <div class="box box-success">
+          <div class="box-header with-border">
+            <h3 class="box-title">Grafik Total Tiket dan Tiket Resolved H-1 Berdasarkan Family</h3>
+            <div class="box-tools pull-right">
+              <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+              <button class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
             </div>
           </div>
-          <!-- /.modal-content -->
+          <div class="box-body">
+            <div class="chart">
+              <div id="container"></div>
+            </div>
+          </div><!-- /.box-body -->
+        </div><!-- /.box -->
+        <div class="box box-success">
+          <div class="box-header with-border">
+            <h3 class="box-title">Grafik Lainnya</h3>
+            <div class="box-tools pull-right">
+              <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+              <button class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+            </div>
+          </div>
+          <div class="box-body">
+            <div class="chart">
+              <div id="container-test">
+                <p class="pull-right">
+                  <a href="<?php echo base_url('statistik/harian');?>" class="btn btn-success btn-sm ad-click-event">
+                    LIHAT STATISTIK PERHARI
+                  </a>
+                  <a href="<?php echo base_url('statistik/bulanan');?>" class="btn btn-success btn-sm ad-click-event">
+                    LIHAT STATISTIK PERBULAN
+                  </a>
+                </p>
+              </div>
+            </div>
+          </div><!-- /.box-body -->
+        </div><!-- /.box -->
+      </div><!-- /.col -->
+    </div><!-- /.row -->
+  </section><!-- /.content -->
+  <div class="modal fade modal-primary" id="modal_family">
+    <div class="modal-dialog modal-lg" style="width: 90%">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="judul_header">Detail</h4>
+          </div>
+          <div class="modal-body" style="background-color: #FFF !important">
+            <div class="box-body scroll-y">
+
+
+
+
+              <div id="tb_incident">
+
+
+
+
+              </div>
+            </div>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+          </div>
         </div>
-        <!-- /.modal-dialog -->
+        <!-- /.modal-content -->
       </div>
-
-<!-- 
-<div class="modal fade bs-example-modal-lg" id="modalRating" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                <h4 class="modal-title" id="myModalLabel">Data Rating</h4>
-            </div>
-            <div class="modal-body" id="rating1">
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            </div>
-        </div>
+      <!-- /.modal-dialog -->
     </div>
-  </div> -->
+
+    <div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" id="loading_modal">
+      <div class="modal-dialog modal-sm" role="document">
+        <img src="<?php echo base_url('assets/dist/img/ajax-loader.gif');?>" alt="" />
+      </div>
+    </div>
+    
 
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-  <script>
+    <script>
   // highcharts
   // Radialize the colors
   Highcharts.setOptions({
@@ -330,9 +315,9 @@ $PESAN = $this->session->userdata('PESAN');
     stops: [
     [0, color],
             [1, Highcharts.Color(color).brighten(-0.3).get('rgb')] // darken
-           ]
-         };
-       })
+            ]
+          };
+        })
  });
     // Build the chart
     Highcharts.chart('family_chart', {
@@ -368,13 +353,13 @@ $PESAN = $this->session->userdata('PESAN');
       series: [{
         name: 'Persentase',
         data: [
-       <?php foreach ($rs_family as $i => $family) { ?>
+        <?php foreach ($rs_family as $i => $family) { ?>
 
-        { 
-          name: '<?php echo $family['SERVICEFAMILY']; ?>', 
-          y: <?php echo $family['TOTAL']; ?> ,
+          { 
+            name: '<?php echo $family['SERVICEFAMILY']; ?>', 
+            y: <?php echo $family['TOTAL']; ?> ,
 
-          color: {
+            color: {
     //linearGradient: { x1: 0, x2: 0, y1: 0, y2: 1 },
     radialGradient: { cx: 0.5, cy: 0.5, r: 0.5 },
     stops: [
@@ -448,32 +433,39 @@ $PESAN = $this->session->userdata('PESAN');
       }
     },
     series: [
-    {
-      name: 'Total Tiket',
-      color: 'rgb(176,224,230)',
-      data: [ 
-      <?php foreach ($rs_total_resolved['TOTAL']  as $total_tiket) {
-        echo $total_tiket.",";
-      } ?>
-              // 150, 
-              // 73, 
-              // 20
-              ],
-              pointPadding: 0.0,
+      {
+        name: 'Total Tiket',
+        color: 'rgb(176,224,230)',
+        data: [ 
+        <?php foreach ($rs_total_resolved['TOTAL']  as $total_tiket) {
+          echo $total_tiket.",";
+        } ?>
+                // 150, 
+                // 73, 
+                // 20
+        ],
+        pointPadding: 0.0,
+        point: {
+             events: {
+                click: function() {
+                    alert ('Category: '+ this.category +', value: '+ this.y);
+                }
+            }
+        },
 
-            }, 
-            {
-              name: 'Tiket Resolved',
-              color: 'rgb(30,144,255)',
-              data: [
-              <?php foreach ($rs_total_resolved['TOTAL_RS']  as $total_rs) {
-                echo $total_rs.",";
-              } ?>
-      //140, 90, 40
-      ],
-      pointPadding: 0.1,
+      }, 
+      {
+        name: 'Tiket Resolved',
+        color: 'rgb(30,144,255)',
+        data: [
+        <?php foreach ($rs_total_resolved['TOTAL_RS']  as $total_rs) {
+          echo $total_rs.",";
+        } ?>
+        //140, 90, 40
+        ],
+        pointPadding: 0.1,
 
-    }
+      }
     ]
   });
 </script>
