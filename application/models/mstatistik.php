@@ -98,17 +98,6 @@ class mstatistik extends CI_Model {
         }
     }
 public function get_total_tiket() {
-       /*  $sql = "SELECT COUNT(*) TOTAL_TIKET FROM FAISALLUBIS.TIKET_ITSM 
-        WHERE TO_CHAR(CREATEDON, 'mm/dd/yyyy') = to_char(sysdate-1, 'mm/dd/yyyy')
-        ";
-        $query = $this->db->query($sql);
-        if ($query->num_rows() > 0) {
-            $result = $query->row_array();
-            $query->free_result();
-            return $result['TOTAL_TIKET'];
-        } else {
-            return NULL;
-        } */
         $cursor='';
         $results = '';
         $this->pblmig_db = $this->load->database('pblmig', true);
@@ -116,25 +105,41 @@ public function get_total_tiket() {
             $m = oci_error();
             trigger_error(htmlentities($m['message']), E_USER_ERROR);
         }
-        $stid = oci_parse($this->pblmig_db->conn_id, 'begin OPHARAPP.PKG_TESTING.GET_DATA_H_MIN1 (:OUT_DATA_TOTAL_TIKET, :OUT_DATA_TIKET_AKTIF, :OUT_DATA_TIKET_RESOLVED); end;');
+        $stid = oci_parse($this->pblmig_db->conn_id, 'begin OPHARAPP.PKG_TESTING.GET_DATA_H_MIN1 (:OUT_DATA_TOTAL_TIKET, :OUT_DATA_TIKET_AKTIF, :OUT_DATA_TIKET_RESOLVED, :OUT_DATA_TIKET_AKTIF_BY_FAMILY, :OUT_DATA_TOTAL_RESOLVE_BY_FMLY ); end;');
         $OUT_DATA_TOTAL_TIKET = oci_new_cursor($this->pblmig_db->conn_id);
         $OUT_DATA_TIKET_AKTIF = oci_new_cursor($this->pblmig_db->conn_id);
         $OUT_DATA_TIKET_RESOLVED = oci_new_cursor($this->pblmig_db->conn_id);
+        $OUT_DATA_TIKET_AKTIF_BY_FAMILY = oci_new_cursor($this->pblmig_db->conn_id);
+        $OUT_DATA_TOTAL_RESOLVE_BY_FMLY = oci_new_cursor($this->pblmig_db->conn_id);
   
         oci_bind_by_name($stid, ':OUT_DATA_TOTAL_TIKET', $OUT_DATA_TOTAL_TIKET,-1, OCI_B_CURSOR) or die('Error binding string3');
         oci_bind_by_name($stid, ':OUT_DATA_TIKET_AKTIF', $OUT_DATA_TIKET_AKTIF,-1, OCI_B_CURSOR) or die('Error binding string4');
         oci_bind_by_name($stid, ':OUT_DATA_TIKET_RESOLVED', $OUT_DATA_TIKET_RESOLVED,-1, OCI_B_CURSOR) or die('Error binding string4');
+        oci_bind_by_name($stid, ':OUT_DATA_TIKET_AKTIF_BY_FAMILY', $OUT_DATA_TIKET_AKTIF_BY_FAMILY,-1, OCI_B_CURSOR) or die('Error binding AKTIF_BY_FAMILY');
+        oci_bind_by_name($stid, ':OUT_DATA_TOTAL_RESOLVE_BY_FMLY', $OUT_DATA_TOTAL_RESOLVE_BY_FMLY,-1, OCI_B_CURSOR) or die('Error binding RESLV_BY_FAMILY');
                 //Bind Cursor     put -1
         //var_dump($stid);
         if(oci_execute($stid)){
             oci_execute($OUT_DATA_TOTAL_TIKET, OCI_DEFAULT);
             oci_execute($OUT_DATA_TIKET_AKTIF, OCI_DEFAULT);
             oci_execute($OUT_DATA_TIKET_RESOLVED, OCI_DEFAULT);
+            oci_execute($OUT_DATA_TIKET_AKTIF_BY_FAMILY, OCI_DEFAULT);
+            oci_execute($OUT_DATA_TOTAL_RESOLVE_BY_FMLY, OCI_DEFAULT);
             
             //oci_fetch_all($OUT_DATA_TOTAL_TIKET, $cursor, null, null, OCI_FETCHSTATEMENT_BY_ROW);
             oci_fetch_all($OUT_DATA_TOTAL_TIKET, $cursor['dataTiketTotal'], null, null, OCI_FETCHSTATEMENT_BY_ROW);
             oci_fetch_all($OUT_DATA_TIKET_AKTIF, $cursor['dataTiketAktif'], null, null, OCI_FETCHSTATEMENT_BY_ROW);
             oci_fetch_all($OUT_DATA_TIKET_RESOLVED, $cursor['dataTiketResolved'], null, null, OCI_FETCHSTATEMENT_BY_ROW);
+            oci_fetch_all($OUT_DATA_TIKET_AKTIF_BY_FAMILY, $cursor['dataTiketAktif_by_family'], null, null, OCI_FETCHSTATEMENT_BY_ROW);
+            oci_fetch_all($OUT_DATA_TOTAL_RESOLVE_BY_FMLY, $cursor['dataTiketResolved_by_family'], null, null, OCI_FETCHSTATEMENT_BY_ROW);
+        
+
+            foreach ( $cursor['dataTiketResolved_by_family'] as $key => $rs) {
+                $data['SERVICEFAMILY'][$key] = $rs['SERVICEFAMILY'];
+                $data['TOTAL'][$key] = $rs['TOTAL'];
+                $data['TOTAL_RS'][$key] = $rs['TOTAL_RS'];
+            }
+            $cursor['dataTiketResolved_by_family'] = $data;
                   //echo '<br>';
             $results = $cursor;
                   //print_r($cursor);  
@@ -521,7 +526,7 @@ public function get_total_tiket() {
 
     // GET TOTAL TIKET BY FAMILY - DONUT CHART
     public function get_total_family_harian($params) {
-        $sql = "SELECT  SUBSTR(SERVICEFAMILY, 5, 10) as SERVICEFAMILY , count(*) as total 
+        $sql = "SELECT  SERVICEFAMILY , SUBSTR(SERVICEFAMILY, 5, 10) as SERVICEFAMILY_SUBSTR , count(*) as total 
                 FROM faisallubis.TIKET_ITSM_HISTO 
                 WHERE STATUS = 'Active' 
                 AND to_char(CREATEDON, 'dd-mm-yyyy') = ?
@@ -680,6 +685,104 @@ public function get_total_tiket() {
         return $results;
 
     }
+
+
+    public function get_pkg_detail_incident_by_tgl($params){
+        $msg_out = '';
+        $results = '';
+        $this->pblmig_db = $this->load->database('pblmig', true);
+        if (!$this->pblmig_db) {
+            $m = oci_error();
+            trigger_error(htmlentities($m['message']), E_USER_ERROR);
+        }
+
+        $stid = oci_parse($this->pblmig_db->conn_id, 'begin OPHARAPP.PKG_TESTING.GET_DATA_INCIDENT_BY_TGL(:IN_TANGGAL, :IN_servicefamily, :IN_SERVICEGROUP, :IN_SERVICETYPE, :OUT_DATA_SERVICEGROUP, :OUT_DATA_SERVICETYPE, :OUT_DATA_INCIDENT, :OUT_MESSAGE); end;');
+        $OUT_DATA_SERVICEGROUP = oci_new_cursor($this->pblmig_db->conn_id);
+        $OUT_DATA_SERVICETYPE = oci_new_cursor($this->pblmig_db->conn_id);
+        $OUT_DATA_INCIDENT = oci_new_cursor($this->pblmig_db->conn_id);
+
+        //Send parameters variable  value  lenght
+        oci_bind_by_name($stid, ':IN_TANGGAL', $params['INTANGGAL']) or die('Error binding IN_TANGGAL');
+        oci_bind_by_name($stid, ':IN_servicefamily', $params['SERVICEFAMILY']) or die('Error binding PAGENUMBER');
+        oci_bind_by_name($stid, ':IN_SERVICEGROUP', $params['SERVICEGROUP']) or die('Error binding IN_SERVICEGROUP');
+        oci_bind_by_name($stid, ':IN_SERVICETYPE', $params['SERVICETYPE']) or die('Error binding IN_SERVICETYPE');
+        oci_bind_by_name($stid, ':OUT_DATA_SERVICEGROUP', $OUT_DATA_SERVICEGROUP,-1, OCI_B_CURSOR) or die('Error binding OUT_DATA_SERVICEGROUP');
+        oci_bind_by_name($stid, ':OUT_DATA_SERVICETYPE', $OUT_DATA_SERVICETYPE,-1, OCI_B_CURSOR) or die('Error binding OUT_DATA_SERVICETYPE');
+        oci_bind_by_name($stid, ':OUT_DATA_INCIDENT', $OUT_DATA_INCIDENT,-1, OCI_B_CURSOR) or die('Error binding OUT_DATA_INCIDENT');
+        oci_bind_by_name($stid, ':OUT_MESSAGE', $msg_out,100, SQLT_CHR) or die('Error binding string12');
+
+
+        //Bind Cursor     put -1
+        $func_result = oci_execute($stid);
+        if($func_result){
+            oci_execute($OUT_DATA_SERVICEGROUP, OCI_DEFAULT);
+            oci_execute($OUT_DATA_SERVICETYPE, OCI_DEFAULT);
+            oci_execute($OUT_DATA_INCIDENT, OCI_DEFAULT);
+            oci_fetch_all($OUT_DATA_SERVICEGROUP, $cursor['OUT_DATA_SERVICEGROUP'], null, null, OCI_FETCHSTATEMENT_BY_ROW);
+            oci_fetch_all($OUT_DATA_SERVICETYPE, $cursor['OUT_DATA_SERVICETYPE'], null, null, OCI_FETCHSTATEMENT_BY_ROW);
+            oci_fetch_all($OUT_DATA_INCIDENT, $cursor['OUT_DATA_INCIDENT'], null, null, OCI_FETCHSTATEMENT_BY_ROW);
+          //echo '<br>';
+            $results = $cursor;
+          //print_r($cursor);  
+        }else{
+            $e = oci_error($stid);
+            $results =  $e['message'];
+        } 
+        oci_free_statement($stid);
+        oci_close($this->pblmig_db->conn_id);
+
+        return $results;
+
+    }
+
+
+// menampilkan detail data dari Grafik
+    public function get_pkg_detail_incident_total($params) {
+        $msg_out = '';
+        $results = '';
+        $this->pblmig_db = $this->load->database('pblmig', true);
+        if (!$this->pblmig_db) {
+            $m = oci_error();
+            trigger_error(htmlentities($m['message']), E_USER_ERROR);
+        }
+
+        $stid = oci_parse($this->pblmig_db->conn_id, 'begin OPHARAPP.PKG_TESTING.GET_DATA_INCIDENT_TOTAL(:IN_servicefamily, :IN_SERVICEGROUP, :IN_SERVICETYPE, :OUT_DATA_SERVICEGROUP, :OUT_DATA_SERVICETYPE, :OUT_DATA_INCIDENT, :OUT_MESSAGE); end;');
+        $OUT_DATA_SERVICEGROUP = oci_new_cursor($this->pblmig_db->conn_id);
+        $OUT_DATA_SERVICETYPE = oci_new_cursor($this->pblmig_db->conn_id);
+        $OUT_DATA_INCIDENT = oci_new_cursor($this->pblmig_db->conn_id);
+
+        //Send parameters variable  value  lenght
+        oci_bind_by_name($stid, ':IN_servicefamily', $params['SERVICEFAMILY']) or die('Error binding PAGENUMBER');
+        oci_bind_by_name($stid, ':IN_SERVICEGROUP', $params['SERVICEGROUP']) or die('Error binding IN_SERVICEGROUP');
+        oci_bind_by_name($stid, ':IN_SERVICETYPE', $params['SERVICETYPE']) or die('Error binding IN_SERVICETYPE');
+        oci_bind_by_name($stid, ':OUT_DATA_SERVICEGROUP', $OUT_DATA_SERVICEGROUP,-1, OCI_B_CURSOR) or die('Error binding OUT_DATA_SERVICEGROUP');
+        oci_bind_by_name($stid, ':OUT_DATA_SERVICETYPE', $OUT_DATA_SERVICETYPE,-1, OCI_B_CURSOR) or die('Error binding OUT_DATA_SERVICETYPE');
+        oci_bind_by_name($stid, ':OUT_DATA_INCIDENT', $OUT_DATA_INCIDENT,-1, OCI_B_CURSOR) or die('Error binding OUT_DATA_INCIDENT');
+        oci_bind_by_name($stid, ':OUT_MESSAGE', $msg_out,100, SQLT_CHR) or die('Error binding string12');
+
+
+        //Bind Cursor     put -1
+        $func_result = oci_execute($stid);
+        if($func_result){
+            oci_execute($OUT_DATA_SERVICEGROUP, OCI_DEFAULT);
+            oci_execute($OUT_DATA_SERVICETYPE, OCI_DEFAULT);
+            oci_execute($OUT_DATA_INCIDENT, OCI_DEFAULT);
+            oci_fetch_all($OUT_DATA_SERVICEGROUP, $cursor['OUT_DATA_SERVICEGROUP'], null, null, OCI_FETCHSTATEMENT_BY_ROW);
+            oci_fetch_all($OUT_DATA_SERVICETYPE, $cursor['OUT_DATA_SERVICETYPE'], null, null, OCI_FETCHSTATEMENT_BY_ROW);
+            oci_fetch_all($OUT_DATA_INCIDENT, $cursor['OUT_DATA_INCIDENT'], null, null, OCI_FETCHSTATEMENT_BY_ROW);
+          //echo '<br>';
+            $results = $cursor;
+          //print_r($cursor);  
+        }else{
+            $e = oci_error($stid);
+            $results =  $e['message'];
+        } 
+        oci_free_statement($stid);
+        oci_close($this->pblmig_db->conn_id);
+
+        return $results;
+    }
+
 
 
 // </editor-fold>

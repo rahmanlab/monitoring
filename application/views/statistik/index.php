@@ -49,7 +49,37 @@ $PESAN = $this->session->userdata('PESAN');
               }
             });
 
+      }
+
+
+  function modal_grafik(family) {
+    document.getElementById("judul_header").innerHTML = "DETAIL TIKET "+family;
+
+    $("#tb_incident").html('<div></div>');
+    var url = "<?php echo base_url('statistik/ajax_get_incident_total') ?>";
+        //var bidang_id = $(this).prop("lang");
+        $.ajax({
+          type: "POST",
+          url: url,
+          dataType: "html",
+          data: {
+            family : family
+          },
+          beforeSend: function () {
+                // non removable loading
+                $('#loading_modal').modal({
+                  backdrop: 'static', keyboard: false
+                });
+              },
+              success: function (data) {
+                $('#loading_modal').modal('hide');
+                $("#tb_incident").html(data);
+                $('#modal_family').modal('show');
+              }
+            });
+
       } 
+ 
 
       $(".changeIcon").on("click",function() {
        $(".changeIcon").each(function() {
@@ -401,7 +431,7 @@ $PESAN = $this->session->userdata('PESAN');
     xAxis: {
       categories: [
       <?php foreach ($rs_total_resolved['SERVICEFAMILY']  as $nama_family) {
-        echo "'".$nama_family."',";
+        echo "'".substr($nama_family, 4)."',";
       } ?>
       //'AP2T',
       // 'P2APST',
@@ -448,7 +478,7 @@ $PESAN = $this->session->userdata('PESAN');
         point: {
              events: {
                 click: function() {
-                    alert ('Category: '+ this.category +', value: '+ this.y);
+                    modal_grafik(this.category);
                 }
             }
         },

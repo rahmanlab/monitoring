@@ -27,15 +27,19 @@ class statistik extends CI_Controller {
         $data['title'] = "Statistik Data Support";
         $data['konten'] = "statistik/index";
         
-        $data['rs_family'] = $this->mstatistik->get_total_family();
-        $data['rs_resolved'] = $this->mstatistik->get_total_resolved();
-        $data['rs_total_resolved'] = $this->mstatistik->get_total_resolved();
+        $rs_tiket = $this->mstatistik->get_total_tiket();
+        //$data['rs_family'] = $this->mstatistik->get_total_family();
+        $data['rs_family'] = $rs_tiket['dataTiketAktif_by_family'];
+        // $data['rs_resolved'] = $this->mstatistik->get_total_resolved();
+        // $data['rs_total_resolved'] = $this->mstatistik->get_total_resolved();
+
+        $data['rs_resolved'] = $rs_tiket['dataTiketResolved_by_family'];
+        $data['rs_total_resolved'] = $rs_tiket['dataTiketResolved_by_family'];
         $data['rs_warna'] = $this->mstatistik->get_warna();
 
-        $totTiket = $this->mstatistik->get_total_tiket();
-        $data['total_tiket'] = $totTiket['dataTiketTotal'][0]['TOTAL_TIKET'];
-        $data['tiket_aktif'] = $totTiket['dataTiketAktif'][0]['TOTAL_TIKET'];
-        $data['tiket_resolved'] = $totTiket['dataTiketResolved'][0]['TOTAL_TIKET'];
+        $data['total_tiket'] = $rs_tiket['dataTiketTotal'][0]['TOTAL_TIKET'];
+        $data['tiket_aktif'] = $rs_tiket['dataTiketAktif'][0]['TOTAL_TIKET'];
+        $data['tiket_resolved'] = $rs_tiket['dataTiketResolved'][0]['TOTAL_TIKET'];
 
         $data['rs_bulan'] = $this->datetimemanipulation->get_list_month();
         $data['rs_tahun'] = $this->mstatistik->get_list_tahun();
@@ -86,7 +90,7 @@ class statistik extends CI_Controller {
     //         echo json_encode($output);
     //     }
     // }
-    // get data diklat
+    // get data detail h-1
     public function ajax_get_incident() {
         // set page rules
         // get data id
@@ -322,6 +326,244 @@ class statistik extends CI_Controller {
         echo $html;
     }
 
+
+// UNTUK DETAIL GRAFIK
+    public function ajax_get_incident_total() {
+        // set page rules
+        // get data id
+        $family = $this->input->post('family');
+
+        // ---------------------------------------- Grid 1  Start ----------------------------------- //
+        $params = array(
+            'SERVICEFAMILY' => $family,
+            'SERVICEGROUP' => '', 
+            'SERVICETYPE' => '', 
+        );
+         $data = $this->mstatistik->get_pkg_detail_incident_total($params);
+         // BUILD HTML
+
+        // table
+        $html = '';
+
+        $no = 1;
+        if (count($data) > 0) {
+            $html .= '
+            <table class="table table-responsive w-auto">
+                  <thead>
+                    <tr style="border-bottom-style: none; border-top-style: none; background-color: #3C8DBC;">
+                      <th>#SERVICEFAMILY : '.$family.'</th>
+                      <th></th>
+                      <th></th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                </table>'; 
+
+            foreach ($data['OUT_DATA_SERVICEGROUP'] AS $item) {
+
+                //$id_collapse = 'collapse' . substr($item['SERVICEGROUP'], 0,2);
+                $id_collapse = 'colls' . substr($item['SERVICEFAMILY'], 0,2)  . substr($item['SERVICEGROUP'], 0,2) .$no++ ;
+         $html .= '
+
+                <table class="table table-responsive w-auto">
+                    <tbody>
+
+                      <tr class="success">
+                        <td class="bg-light-blue" scope="row" width="40px">
+                          <a class="btn btn-primary btn-xs collapsed" onclick="changeIcon(\''.$id_collapse.'\')" data-toggle="collapse" href="#'.$id_collapse.'" role="button"   aria-expanded="false" aria-controls="'.$id_collapse.'">
+                            <i id="fa_'.$id_collapse.'" class=" fa fa-plus"></i>
+                          </a>
+                        </td>
+                        <td class="bg-light-blue"  width="110px" >SERVICEGROUP : </td>
+                        <td width="200px" style="padding-left:10px">' . $item['SERVICEGROUP'] . '</td>
+                        <td width="50px"><span class="badge bg-red">' . $item['RECORD'] . '</span></td>
+                        <td ></td>
+                      </tr>
+                    </tbody>
+                </table> 
+                  <div class="pohon1 collapse" id="'.$id_collapse.'">
+                    <div class="card card-body">';
+        // ---------------------------------------- Grid 2  Start ----------------------------------- //
+        $params = array(
+            'SERVICEFAMILY' => $item['SERVICEFAMILY'],
+            'SERVICEGROUP' => $item['SERVICEGROUP'], 
+            'SERVICETYPE' => '', 
+        );
+         $data = $this->mstatistik->get_pkg_detail_incident_total($params);                    
+                              
+        $no2 = 1;
+        if (count($data) > 0) {
+            foreach ($data['OUT_DATA_SERVICETYPE'] AS $item) {
+
+                $id_collapse = $id_collapse .'child'. $no2++;
+                $html .= '
+                    <table class="table table-responsive w-auto">
+                    <tbody>
+                      <tr class="success">
+                        <td class="bg-light-blue" scope="row" width="40px">
+                          <a class="btn btn-primary btn-xs collapsed"   data-toggle="collapse" href="#'.$id_collapse.'" role="button"   aria-expanded="false" aria-controls="'.$id_collapse.'">
+                            <i class="'.$id_collapse.' fa fa-plus"></i>
+                          </a>
+                        </td>
+
+                        <td class="bg-light-blue"  width="110px" >SERVICETYPE : </td>
+                        <td width="250px"  style="padding-left:10px">' . $item['SERVICETYPE'] . '</td>
+                        <td width="50px"><span class="badge bg-red">' . $item['RECORD'] . '</span></td>
+                        <td></td>
+                      </tr>
+                    </tbody>
+                </table> 
+                                  
+
+                  <div class="collapse" id="'.$id_collapse.'">
+                    <div class="card card-body">
+                                        ';
+
+
+                                        // ---------------------------------------- Grid 3  Start ----------------------------------- //
+                            $params = array(
+                                'SERVICEFAMILY' => $item['SERVICEFAMILY'],
+                                'SERVICEGROUP' => $item['SERVICEGROUP'], 
+                                'SERVICETYPE' => $item['SERVICETYPE'], 
+                            );
+                             $data = $this->mstatistik->get_pkg_detail_incident_total($params);                    
+                                                  
+                            $no = 1;
+                            if (count($data) > 0) {
+                                // header table detail
+                                $html .= '
+                                <div class="table-responsive" style="overflow-x:true; width:100%">
+                                <table class="table table-bordered table-hover table-striped w-auto detil">
+                                    <thead>
+                                        <tr>
+                                            <th>INCIDENT</th>
+                                            <th style="padding: 0 50px">CASEOWNER</th>
+                                            <th>CASEOWNEREMAIL</th>
+                                            <th>COMPLAINANT</th>
+                                            <th>COMPLAINANTEMAIL</th>
+                                            <th style="padding: 0 100px">SUMMARY</th>
+                                            <th>SOURCE</th>             
+                                            <th>CALLTYPE</th>               
+                                            <th>STATUS</th>
+                                            <th>CREATEDBY</th>
+                                            <th>SERVICEFAMILY</th>
+                                            <th>SERVICEGROUP</th>
+                                            <th>SERVICETYPE</th>
+                                            <th> CAUSE </th>
+                                            <th> RESOLUTION </th>
+                                            <th> CREATEDBY </th>
+                                            <th> CREATEDON </th>
+                                            <th> RESOLVEDBY </th>
+                                            <th> RESOLVEDON </th>
+                                            <th> MODIFIEDBY </th>
+                                            <th> MODIFIEDON </th>
+                                            <th> CLOSEDBY </th>
+                                            <th> CLOSEDDATE </th>
+                                            <th> SLACLASS </th>
+                                            <th> SLALEVEL1 </th>
+                                            <th> SLALEVEL2 </th>
+                                            <th> SLALEVEL3 </th>
+                                            <th> PRIORITY </th>
+                                            <th> PRIORITYNAME </th>
+                                            <th> ASSIGNTO </th>
+                                            <th> FIRSTCALLRESOLUTION </th>
+                                            <th> ASSIGNEDON </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>';
+
+                                foreach ($data['OUT_DATA_INCIDENT'] AS $item) {
+
+                                    $html .= '
+                                                        
+                                                            
+                                        <tr>
+                                            <td>'. number_format($item['INCIDENT'], 0, '', '') .'</td>
+                                            <td>'.$item["CASEOWNER"].'</td>
+                                            <td>'.$item["CASEOWNEREMAIL"].'</td>
+                                            <td>'.$item["COMPLAINANT"].'</td>
+                                            <td>'.$item["COMPLAINANTEMAIL"].'</td>
+                                            <td>'.$item["SUMMARY"].'</td>
+                                            <td>'.$item["SOURCE"].'</td>             
+                                            <td>'.$item["CALLTYPE"].'</td>               
+                                            <td>'.$item["STATUS"].'</td>
+                                            <td>'.$item["CREATEDBY"].'</td>
+                                            <td>'.$item["SERVICEFAMILY"].'</td>
+                                            <td>'.$item["SERVICEGROUP"].'</td>
+                                            <td>'.$item["SERVICETYPE"].'</td>
+                                            <td>'.$item[" CAUSE "].'</td>
+                                            <td>'.$item[" RESOLUTION "].'</td>
+                                            <td>'.$item[" CREATEDBY "].'</td>
+                                            <td>'.$item[" CREATEDON "].'</td>
+                                            <td>'.$item[" RESOLVEDBY "].'</td>
+                                            <td>'.$item[" RESOLVEDON "].'</td>
+                                            <td>'.$item[" MODIFIEDBY "].'</td>
+                                            <td>'.$item[" MODIFIEDON "].'</td>
+                                            <td>'.$item[" CLOSEDBY "].'</td>
+                                            <td>'.$item[" CLOSEDDATE "].'</td>
+                                            <td>'.$item[" SLACLASS "].'</td>
+                                            <td>'.$item[" SLALEVEL1 "].'</td>
+                                            <td>'.$item[" SLALEVEL2 "].'</td>
+                                            <td>'.$item[" SLALEVEL3 "].'</td>
+                                            <td>'.$item[" PRIORITY "].'</td>
+                                            <td>'.$item[" PRIORITYNAME "].'</td>
+                                            <td>'.$item[" ASSIGNTO "].'</td>
+                                            <td>'.$item[" FIRSTCALLRESOLUTION "].'</td>
+                                            <td>'.$item[" ASSIGNEDON "].'</td>
+                                        </tr>';
+
+                                } // foreach 3
+                                // tutup table
+                                $html .= '
+                                        </tbody>
+                                    </table>
+                                    </div>';
+                            } else {
+                                $html .= '<table>';
+                                $html .= '<tr>';
+                                $html .= '<td colspan="4">data tida ditemukan!</td>';
+                                $html .= '</tr>';
+                                $html .= '</table>';
+                            }
+    // ---------------------------------------- Grid 3  End ----------------------------------- //
+
+
+                $html .='                        
+                                          
+                                        </div>
+                                      </div> ';
+
+            } // foreach 2
+        } else {
+            $html .= '<table>';
+            $html .= '<tr>';
+            $html .= '<td colspan="4">data tida ditemukan!</td>';
+            $html .= '</tr>';
+            $html .= '</table>';
+        }
+    // ---------------------------------------- Grid 2  End ----------------------------------- //
+         $html .= '
+
+                            </div>
+                          </div>
+
+         ';
+
+            } // foreach 1
+        } else { // tutup if
+            $html .= '<table>';
+            $html .= '<tr>';
+            $html .= '<td colspan="4">data tida ditemukan!</td>';
+            $html .= '</tr>';
+            $html .= '</table>';
+        } // tutup if
+        // ---------------------------------------- Grid 1  End ----------------------------------- //
+
+
+        echo $html;
+    }
+
+
     // get data diklat
      public function ajax_get_incident_backup() {
         // set page rules
@@ -544,44 +786,286 @@ class statistik extends CI_Controller {
     }
 
 
-    // LOAD DATA TABLE
-    public function dokumen_load_params_harian() {
+    // get data detail h-1
+    public function ajax_get_incident_harian() {
+
         $family = $this->input->post('family');
-        $INTANGGAL = $this->input->post('INTANGGAL');
-        // get params
-        $family = empty($family) ? '' : "%".$family."%";
-        // parameter
-        $params = array($INTANGGAL, $family);
-        $res = $this->mstatistik->get_list_by_family_harian($params);
-        // get data
-        if (empty($res)) {
-            $output = array(
-                "data" => [],
-            );
-            echo json_encode($output);
+        $tgl = $this->input->post('INTANGGAL');
+        $INTANGGAL = substr($tgl, 6,4).substr($tgl, 3,2).substr($tgl, 0,2);
+        // ---------------------------------------- Grid 1  Start ----------------------------------- //
+        $params = array(
+            'INTANGGAL' => $INTANGGAL, 
+            'SERVICEFAMILY' => $family,
+            'SERVICEGROUP' => '', 
+            'SERVICETYPE' => '', 
+        );
+         $data = $this->mstatistik->get_pkg_detail_incident_by_tgl($params);
+         // BUILD HTML
+
+        // table
+        $html = '';
+
+        $no = 1;
+        if (count($data) > 0) {
+            $html .= '
+            <table class="table table-responsive w-auto">
+                  <thead>
+                    <tr style="border-bottom-style: none; border-top-style: none; background-color: #3C8DBC;">
+                      <th>#SERVICEFAMILY : '.$family.'</th>
+                      <th></th>
+                      <th></th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                </table>'; 
+
+            foreach ($data['OUT_DATA_SERVICEGROUP'] AS $item) {
+
+                //$id_collapse = 'collapse' . substr($item['SERVICEGROUP'], 0,2);
+                $id_collapse = 'colls' . substr($item['SERVICEFAMILY'], 0,2)  . substr($item['SERVICEGROUP'], 0,2) .$no++ ;
+         $html .= '
+
+                <table class="table table-responsive w-auto">
+                    <tbody>
+
+                      <tr class="success">
+                        <td class="bg-light-blue" scope="row" width="40px">
+                          <a class="btn btn-primary btn-xs collapsed" onclick="changeIcon(\''.$id_collapse.'\')" data-toggle="collapse" href="#'.$id_collapse.'" role="button"   aria-expanded="false" aria-controls="'.$id_collapse.'">
+                            <i id="fa_'.$id_collapse.'" class=" fa fa-plus"></i>
+                          </a>
+                        </td>
+                        <td class="bg-light-blue"  width="110px" >SERVICEGROUP : </td>
+                        <td width="200px" style="padding-left:10px">' . $item['SERVICEGROUP'] . '</td>
+                        <td width="50px"><span class="badge bg-red">' . $item['RECORD'] . '</span></td>
+                        <td ></td>
+                      </tr>
+                    </tbody>
+                </table> 
+                  <div class="pohon1 collapse" id="'.$id_collapse.'">
+                    <div class="card card-body">';
+        // ---------------------------------------- Grid 2  Start ----------------------------------- //
+        $params = array(
+            'INTANGGAL' => $INTANGGAL, 
+            'SERVICEFAMILY' => $item['SERVICEFAMILY'],
+            'SERVICEGROUP' => $item['SERVICEGROUP'], 
+            'SERVICETYPE' => '', 
+        );
+         $data = $this->mstatistik->get_pkg_detail_incident_by_tgl($params);                    
+                              
+        $no2 = 1;
+        if (count($data) > 0) {
+            foreach ($data['OUT_DATA_SERVICETYPE'] AS $item) {
+
+                $id_collapse = $id_collapse .'child'. $no2++;
+                $html .= '
+                    <table class="table table-responsive w-auto">
+                    <tbody>
+                      <tr class="success">
+                        <td class="bg-light-blue" scope="row" width="40px">
+                          <a class="btn btn-primary btn-xs collapsed"   data-toggle="collapse" href="#'.$id_collapse.'" role="button"   aria-expanded="false" aria-controls="'.$id_collapse.'">
+                            <i class="'.$id_collapse.' fa fa-plus"></i>
+                          </a>
+                        </td>
+
+                        <td class="bg-light-blue"  width="110px" >SERVICETYPE : </td>
+                        <td width="250px"  style="padding-left:10px">' . $item['SERVICETYPE'] . '</td>
+                        <td width="50px"><span class="badge bg-red">' . $item['RECORD'] . '</span></td>
+                        <td></td>
+                      </tr>
+                    </tbody>
+                </table> 
+                                  
+
+                  <div class="collapse" id="'.$id_collapse.'">
+                    <div class="card card-body">
+                                        ';
+
+
+                                        // ---------------------------------------- Grid 3  Start ----------------------------------- //
+                            $params = array(
+                                'INTANGGAL' => $INTANGGAL, 
+                                'SERVICEFAMILY' => $item['SERVICEFAMILY'],
+                                'SERVICEGROUP' => $item['SERVICEGROUP'], 
+                                'SERVICETYPE' => $item['SERVICETYPE'], 
+                            );
+                             $data = $this->mstatistik->get_pkg_detail_incident_by_tgl($params);                    
+                                                  
+                            $no = 1;
+                            if (count($data) > 0) {
+                                // header table detail
+                                $html .= '
+                                <div class="table-responsive" style="overflow-x:true; width:100%">
+                                <table class="table table-bordered table-hover table-striped w-auto detil">
+                                    <thead>
+                                        <tr>
+                                            <th>INCIDENT</th>
+                                            <th style="padding: 0 50px">CASEOWNER</th>
+                                            <th>CASEOWNEREMAIL</th>
+                                            <th>COMPLAINANT</th>
+                                            <th>COMPLAINANTEMAIL</th>
+                                            <th style="padding: 0 100px">SUMMARY</th>
+                                            <th>SOURCE</th>             
+                                            <th>CALLTYPE</th>               
+                                            <th>STATUS</th>
+                                            <th>CREATEDBY</th>
+                                            <th>SERVICEFAMILY</th>
+                                            <th>SERVICEGROUP</th>
+                                            <th>SERVICETYPE</th>
+                                            <th> CAUSE </th>
+                                            <th> RESOLUTION </th>
+                                            <th> CREATEDBY </th>
+                                            <th> CREATEDON </th>
+                                            <th> RESOLVEDBY </th>
+                                            <th> RESOLVEDON </th>
+                                            <th> MODIFIEDBY </th>
+                                            <th> MODIFIEDON </th>
+                                            <th> CLOSEDBY </th>
+                                            <th> CLOSEDDATE </th>
+                                            <th> SLACLASS </th>
+                                            <th> SLALEVEL1 </th>
+                                            <th> SLALEVEL2 </th>
+                                            <th> SLALEVEL3 </th>
+                                            <th> PRIORITY </th>
+                                            <th> PRIORITYNAME </th>
+                                            <th> ASSIGNTO </th>
+                                            <th> FIRSTCALLRESOLUTION </th>
+                                            <th> ASSIGNEDON </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>';
+
+                                foreach ($data['OUT_DATA_INCIDENT'] AS $item) {
+
+                                    $html .= '
+                                                        
+                                                            
+                                        <tr>
+                                            <td>'. number_format($item['INCIDENT'], 0, '', '') .'</td>
+                                            <td>'.$item["CASEOWNER"].'</td>
+                                            <td>'.$item["CASEOWNEREMAIL"].'</td>
+                                            <td>'.$item["COMPLAINANT"].'</td>
+                                            <td>'.$item["COMPLAINANTEMAIL"].'</td>
+                                            <td>'.$item["SUMMARY"].'</td>
+                                            <td>'.$item["SOURCE"].'</td>             
+                                            <td>'.$item["CALLTYPE"].'</td>               
+                                            <td>'.$item["STATUS"].'</td>
+                                            <td>'.$item["CREATEDBY"].'</td>
+                                            <td>'.$item["SERVICEFAMILY"].'</td>
+                                            <td>'.$item["SERVICEGROUP"].'</td>
+                                            <td>'.$item["SERVICETYPE"].'</td>
+                                            <td>'.$item[" CAUSE "].'</td>
+                                            <td>'.$item[" RESOLUTION "].'</td>
+                                            <td>'.$item[" CREATEDBY "].'</td>
+                                            <td>'.$item[" CREATEDON "].'</td>
+                                            <td>'.$item[" RESOLVEDBY "].'</td>
+                                            <td>'.$item[" RESOLVEDON "].'</td>
+                                            <td>'.$item[" MODIFIEDBY "].'</td>
+                                            <td>'.$item[" MODIFIEDON "].'</td>
+                                            <td>'.$item[" CLOSEDBY "].'</td>
+                                            <td>'.$item[" CLOSEDDATE "].'</td>
+                                            <td>'.$item[" SLACLASS "].'</td>
+                                            <td>'.$item[" SLALEVEL1 "].'</td>
+                                            <td>'.$item[" SLALEVEL2 "].'</td>
+                                            <td>'.$item[" SLALEVEL3 "].'</td>
+                                            <td>'.$item[" PRIORITY "].'</td>
+                                            <td>'.$item[" PRIORITYNAME "].'</td>
+                                            <td>'.$item[" ASSIGNTO "].'</td>
+                                            <td>'.$item[" FIRSTCALLRESOLUTION "].'</td>
+                                            <td>'.$item[" ASSIGNEDON "].'</td>
+                                        </tr>';
+
+                                } // foreach 3
+                                // tutup table
+                                $html .= '
+                                        </tbody>
+                                    </table>
+                                    </div>';
+                            } else {
+                                $html .= '<table>';
+                                $html .= '<tr>';
+                                $html .= '<td colspan="4">data tida ditemukan!</td>';
+                                $html .= '</tr>';
+                                $html .= '</table>';
+                            }
+    // ---------------------------------------- Grid 3  End ----------------------------------- //
+
+
+                $html .='                        
+                                          
+                                        </div>
+                                      </div> ';
+
+            } // foreach 2
         } else {
-            $session_data['rs_ophar'] = $res;
-            $this->session->set_userdata($session_data);
-            foreach ($res as $data) {
-                $row = array();
-                $row[] = number_format($data['INCIDENT'], 0, '', '');
-                $row[] = $data['CASEOWNER'];
-                $row[] = $data['SLACLASS'];
-                $row[] = $data['SUMMARY'];
-                $row[] = $data['SERVICETYPE'];
-                $row[] = $data['CREATEDBY'];
-                $row[] = $data['CREATEDON'];
-                $row[] = $data['CLOSEDDATE'];
-                $row[] = $data['ASSIGNTO'];
-                $row[] = $data['ASSIGNEDON'];
-                $dataarray[] = $row;
-            }
-            $output = array(
-                "data" => $dataarray
-            );
-            echo json_encode($output);
+            $html .= '<table>';
+            $html .= '<tr>';
+            $html .= '<td colspan="4">data tida ditemukan!</td>';
+            $html .= '</tr>';
+            $html .= '</table>';
         }
+    // ---------------------------------------- Grid 2  End ----------------------------------- //
+         $html .= '
+
+                            </div>
+                          </div>
+
+         ';
+
+            } // foreach 1
+        } else { // tutup if
+            $html .= '<table>';
+            $html .= '<tr>';
+            $html .= '<td colspan="4">data tida ditemukan!</td>';
+            $html .= '</tr>';
+            $html .= '</table>';
+        } // tutup if
+        // ---------------------------------------- Grid 1  End ----------------------------------- //
+
+
+        echo $html;
     }
+
+
+
+
+    // LOAD DATA TABLE
+    // public function dokumen_load_params_harian() {
+    //     $family = $this->input->post('family');
+    //     $INTANGGAL = $this->input->post('INTANGGAL');
+    //     // get params
+    //     $family = empty($family) ? '' : "%".$family."%";
+    //     // parameter
+    //     $params = array($INTANGGAL, $family);
+    //     $res = $this->mstatistik->get_list_by_family_harian($params);
+    //     // get data
+    //     if (empty($res)) {
+    //         $output = array(
+    //             "data" => [],
+    //         );
+    //         echo json_encode($output);
+    //     } else {
+    //         $session_data['rs_ophar'] = $res;
+    //         $this->session->set_userdata($session_data);
+    //         foreach ($res as $data) {
+    //             $row = array();
+    //             $row[] = number_format($data['INCIDENT'], 0, '', '');
+    //             $row[] = $data['CASEOWNER'];
+    //             $row[] = $data['SLACLASS'];
+    //             $row[] = $data['SUMMARY'];
+    //             $row[] = $data['SERVICETYPE'];
+    //             $row[] = $data['CREATEDBY'];
+    //             $row[] = $data['CREATEDON'];
+    //             $row[] = $data['CLOSEDDATE'];
+    //             $row[] = $data['ASSIGNTO'];
+    //             $row[] = $data['ASSIGNEDON'];
+    //             $dataarray[] = $row;
+    //         }
+    //         $output = array(
+    //             "data" => $dataarray
+    //         );
+    //         echo json_encode($output);
+    //     }
+    // }
 
 
     

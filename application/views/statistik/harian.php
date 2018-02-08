@@ -1,15 +1,55 @@
 <?php
 $PESAN = $this->session->userdata('PESAN');
 ?>
-<style type="text/css">
-td.details-control {
-  background: url(<?php echo base_url('assets/dist/img/details_open.png');?>) no-repeat center center;
-  cursor: pointer;
-}
-tr.shown td.details-control {
-  background: url(<?php echo base_url('assets/dist/img/details_close.png');?>) no-repeat center center;
-}
-</style>
+
+<script type="text/javascript">
+  
+      function changeIcon(id_collapse) {
+       // alert('Id = ' + id_collapse);
+       $("#" + id_collapse).on('shown.bs.collapse', function() {
+        $("#fa_" + id_collapse).addClass('fa-minus').removeClass('fa-plus');
+      });
+       $("#" + id_collapse).on('hidden.bs.collapse', function() {
+        $("#fa_" + id_collapse).addClass('fa-plus').removeClass('fa-minus');
+      });
+     }
+
+</script>
+
+    <style type="text/css">
+    .w-auto{
+
+      margin-bottom: 2px;
+    }
+    .w-auto tbody > tr > td{
+      color: #000;
+    }
+    .w-auto > thead > tr > th, .w-auto > tbody > tr > th, .w-auto > tfoot > tr > th, .w-auto > thead > tr > td, .w-auto > tbody > tr > td, .w-auto > tfoot > tr > td {
+      padding: 0px;
+      line-height: 1.42857;
+      vertical-align: top;
+      border-top: 1px solid #DDD;
+      text-align: left;  
+    }
+    .detil > tbody > tr > td{
+      font-size: 10px;
+    }
+
+    .detil > thead > tr > th{
+      font-size: 10px;
+      padding-left: 5px;
+      padding-right: 5px;
+      background-color: #3C8DBC;
+    }
+    .pohon1{
+      margin-left: 30px;
+    }
+    .scroll-y {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+  </style>
 <input type="hidden" value="" id="noagendaVALUE">
 <section class="content">
 
@@ -187,42 +227,49 @@ tr.shown td.details-control {
   </div><!-- /.row -->
 </section><!-- /.content -->
 
-<div class="modal fade " id="modal_family">
-  <div class="modal-dialog modal-lg" style="width: 90%">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="judul_header">Detail</h4>
-        </div>
-        <div class="modal-body">
-          <div class="box-body" style="overflow-x: scroll;">
-            <table id="tb_family_detail" class="table table-bordered table-striped table-hover" style="width: 120%;">
-              <thead>
-                <tr>
-                  <th width="10%">No Tiket</th>
-                  <th width="10%">Owner</th>
-                  <th width="10%">SLA Class</th>
-                  <th width="15%">Summary</th>
-                  <th width="5%">Type</th>
-                  <th width="10%">CREATEDBY</th>
-                  <th width="10%">CREATEDON</th>
-                  <th width="10%">CLOSEDDATE</th>
-                  <th width="15%">ASSIGNTO</th>
-                  <th width="5%">ASSIGNEDON</th>
-                </tr>
-              </thead>
-            </table>
+<div class="modal fade modal-primary" id="modal_family">
+    <div class="modal-dialog modal-lg" style="width: 90%">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="judul_header">Detail</h4>
+          </div>
+          <div class="modal-body" style="background-color: #FFF !important">
+            <div class="box-body scroll-y">
+
+
+
+
+              <div id="tb_incident">
+
+
+
+
+              </div>
+            </div>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
           </div>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-        </div>
+        <!-- /.modal-content -->
       </div>
-      <!-- /.modal-content -->
+      <!-- /.modal-dialog -->
     </div>
-    <!-- /.modal-dialog -->
-  </div>
+
+
+    <div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" id="loading_modal">
+      <div class="modal-dialog modal-sm" role="document">
+        <img src="<?php echo base_url('assets/dist/img/ajax-loader.gif');?>" alt="" />
+      </div>
+    </div>
+    
+
+
+
+
   <script>
 	// highcharts
 	// Radialize the colors
@@ -307,29 +354,39 @@ tr.shown td.details-control {
      ]
    });
 
-    function modal_family(family) {
-      document.getElementById("judul_header").innerHTML = "DETAIL TIKET AKTIF "+family;
-      var table;
-      table = $('#tb_family_detail').DataTable({
-        "ajax": {
-          "url": "<?php echo base_url('statistik/dokumen_load_params_harian') ?>",
-          "type": "POST",
-          "data": {"family": family, "INTANGGAL": "<?php echo $INTANGGAL; ?>"},
-        },
-        "paging": false,
-        "pageLength": 3,
-        "lengthChange": true,
-        "searching": true,
-        "ordering": true,
-        "info": true,
-        "autoWidth": true,
-      });
-        // $('#bcari').attr('disabled', 'disabled');
-        table.destroy();
-        //
-        $('#modal_family').modal('show');
-      }
+    
+  function modal_family(family) {
+    document.getElementById("judul_header").innerHTML = "DETAIL TIKET AKTIF "+family;
+
+    $("#tb_incident").html('<div></div>');
+    var url = "<?php echo base_url('statistik/ajax_get_incident_harian') ?>";
+        //var bidang_id = $(this).prop("lang");
+        $.ajax({
+          type: "POST",
+          url: url,
+          dataType: "html",
+          data: {
+            "family" : family,
+            "INTANGGAL" : "<?php echo $INTANGGAL; ?>"
+          },
+          beforeSend: function () {
+                // non removable loading
+                $('#loading_modal').modal({
+                  backdrop: 'static', keyboard: false
+                });
+              },
+              success: function (data) {
+                $('#loading_modal').modal('hide');
+                $("#tb_incident").html(data);
+                $('#modal_family').modal('show');
+              }
+            });
+
+      } 
+
     </script>
+
+
     <script type="text/javascript">
   // bar chart
   Highcharts.chart('container', {
