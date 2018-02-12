@@ -3,7 +3,7 @@ $PESAN = $this->session->userdata('PESAN');
 ?>
 <script>
 
-  function modal_family(family) {
+function modal_family(family) {
     document.getElementById("judul_header").innerHTML = "DETAIL TIKET AKTIF "+family;
 
     $("#tb_incident").html('<div></div>');
@@ -28,6 +28,7 @@ $PESAN = $this->session->userdata('PESAN');
                   diagramDetail(dataDetail);
                   // console.log(dataDetail.OUT_DATA_SERVICEGROUP);
                 // $("#tb_incident").html(data);
+                $("#tabel_detail tbody").empty();
                 $('#modal_family').modal('show');
               }
             });
@@ -55,28 +56,20 @@ $PESAN = $this->session->userdata('PESAN');
               success: function (data) {
                 $('#loading_modal').modal('hide');
                   var tabelDetail = JSON.parse(data);
-                  var jancuk = tabelDetail['rs_tiket'].OUT_DATA_SERVICEGROUP
-                        // console.log(tabelDetail['rs_tiket'].OUT_DATA_SERVICEGROUP);
-                        console.log(jancuk);
+                  var jancuk = tabelDetail['rs_tiket'].OUT_DATA_SERVICETYPE 
                   $("#tabel_detail tbody").empty();
                     if(jancuk == ""){
                       var strRow ='<tr><td><div class="alert alert-danger"> Data Tidak Tersedia...! </div></td></tr>';
                       $("#tabel_detail tbody").append(strRow);
                     }else{
-                      // jancuk.each(function(value){
                         $.each(jancuk, function(index, itemData) {
-                          console.log(itemData.SERVICEFAMILY);
                         var strRow =
                           '<tr>' +
                             '<td style="color:black">' + itemData.SERVICEFAMILY + '</td>' +
                             '<td style="color:black">' + itemData.SERVICEGROUP + '</td>' +
                             '<td style="color:black">' + itemData.SERVICETYPE + '</td>' +
-                            '<td>'+
-                              '<button class="btn btn-success" onclick="getDataSoal('+ itemData.id_soal +')">Edit</button>'+
-                              '<button class="btn btn-danger" onclick="deleteSoal('+ itemData.id_soal +')">Hapus</button>'+
-                            '</td>' +
-                          '</tr>';
-                          console.log(strRow);
+                            '<td style="color:black">' + itemData.RECORD + '</td>' +
+                           '</tr>';
                         $("#tabel_detail tbody").append(strRow);
                       });
                     }
@@ -84,7 +77,6 @@ $PESAN = $this->session->userdata('PESAN');
             });
 
       } 
-
   function modal_grafik(family) {
     document.getElementById("judul_header").innerHTML = "DETAIL TIKET "+family;
 
@@ -591,7 +583,6 @@ function diagramDetail(dataDetail) {
                   }, 
                       events: {
                                 click: function() {
-                                  // alert(value.SERVICEFAMILY, this.name);
                                  modal_tabel(value.SERVICEFAMILY, this.name);
                                 }
                               }
