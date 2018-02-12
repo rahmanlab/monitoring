@@ -2,26 +2,6 @@
 $PESAN = $this->session->userdata('PESAN');
 ?>
 <script>
-  $(document).on("click", ".rating", function () {
-    $("#rating").html('<div></div>');
-    var url = "{$config->site_url('pengawasan/pbu/personil_bidang/ajax_get_rating')}";
-    var bidang_id = $(this).prop("lang");
-    $.ajax({
-      type: "POST",
-      url: url,
-      dataType: "html",
-      data: {
-        bidang_id: bidang_id
-      },
-      success: function (data) {
-        $("#rating").html(data);
-      }
-    });
-  });
-
-
-
-
 
   function modal_family(family) {
     document.getElementById("judul_header").innerHTML = "DETAIL TIKET AKTIF "+family;
@@ -44,13 +24,66 @@ $PESAN = $this->session->userdata('PESAN');
               },
               success: function (data) {
                 $('#loading_modal').modal('hide');
-                $("#tb_incident").html(data);
+                  var dataDetail = JSON.parse(data);
+                  diagramDetail(dataDetail);
+                  // console.log(dataDetail.OUT_DATA_SERVICEGROUP);
+                // $("#tb_incident").html(data);
                 $('#modal_family').modal('show');
               }
             });
 
       }
 
+   function modal_tabel(family, group) {
+    // $("#tb_incident").html('<div></div>');
+    var url = "<?php echo base_url('statistik/ajax_get_incident') ?>";
+        //var bidang_id = $(this).prop("lang");
+        $.ajax({
+          type: "POST",
+          url: url,
+          dataType: "html",
+          data: {
+            family : family,
+            group : group
+          },
+          beforeSend: function () {
+                // non removable loading
+                $('#loading_modal').modal({
+                  backdrop: 'static', keyboard: false
+                });
+              },
+              success: function (data) {
+                $('#loading_modal').modal('hide');
+                  var tabelDetail = JSON.parse(data);
+                  var jancuk = tabelDetail['rs_tiket'].OUT_DATA_SERVICEGROUP
+                        // console.log(tabelDetail['rs_tiket'].OUT_DATA_SERVICEGROUP);
+                        console.log(jancuk);
+                  $("#tabel_detail tbody").empty();
+                    if(jancuk == ""){
+                      var strRow ='<tr><td><div class="alert alert-danger"> Data Tidak Tersedia...! </div></td></tr>';
+                      $("#tabel_detail tbody").append(strRow);
+                    }else{
+                      // jancuk.each(function(value){
+                        $.each(jancuk, function(index, itemData) {
+                          console.log(itemData.SERVICEFAMILY);
+                        var strRow =
+                          '<tr>' +
+                            '<td style="color:black">' + itemData.SERVICEFAMILY + '</td>' +
+                            '<td style="color:black">' + itemData.SERVICEGROUP + '</td>' +
+                            '<td style="color:black">' + itemData.SERVICETYPE + '</td>' +
+                            '<td>'+
+                              '<button class="btn btn-success" onclick="getDataSoal('+ itemData.id_soal +')">Edit</button>'+
+                              '<button class="btn btn-danger" onclick="deleteSoal('+ itemData.id_soal +')">Hapus</button>'+
+                            '</td>' +
+                          '</tr>';
+                          console.log(strRow);
+                        $("#tabel_detail tbody").append(strRow);
+                      });
+                    }
+              }
+            });
+
+      } 
 
   function modal_grafik(family) {
     document.getElementById("judul_header").innerHTML = "DETAIL TIKET "+family;
@@ -79,7 +112,6 @@ $PESAN = $this->session->userdata('PESAN');
             });
 
       } 
- 
 
       $(".changeIcon").on("click",function() {
        $(".changeIcon").each(function() {
@@ -144,7 +176,7 @@ $PESAN = $this->session->userdata('PESAN');
       margin-left: 30px;
     }
     .scroll-y {
-      max-height: 300px;
+      max-height: auto;
       overflow-y: auto;
     }
 
@@ -288,7 +320,7 @@ $PESAN = $this->session->userdata('PESAN');
     </div><!-- /.row -->
   </section><!-- /.content -->
   <div class="modal fade modal-primary" id="modal_family">
-    <div class="modal-dialog modal-lg" style="width: 90%">
+    <div class="modal-dialog modal-lg" style="width: 95%">
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -297,15 +329,137 @@ $PESAN = $this->session->userdata('PESAN');
           </div>
           <div class="modal-body" style="background-color: #FFF !important">
             <div class="box-body scroll-y">
+              <div class="row">
+                  <div class="col-md-7">
+                    <div class="chart-responsive">
+                      <div id="detail_chart" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+                      <!-- <canvas id="pieChart" height="150"></canvas> -->
+                    </div><!-- ./chart-responsive -->
+                  </div><!-- /.col -->
+                  <div class="col-md-5">
+                      <table class="table-bordered" id="tabel_detail">
+                        <thead></thead>
+                        <tbody></tbody>
+                      </table> 
+
+                    </div>
+                    <!-- <table class="table table-responsive w-auto">
+                      <thead>
+                        <tr style="border-bottom-style: none; border-top-style: none; background-color: #3C8DBC;">
+                          <th style="padding: 3px 10px"> #SERVICEGROUP : Pelayanan Pelanggan</th>
+                          <th></th>
+                          <th></th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                    </table> -->
+
+                    <!-- <div class="collapse in" id="colls05051" aria-expanded="true" style="">
+                       <div class="card card-body">
+                          <table class="table table-responsive w-auto" id="tabel_detail"> -->
+                            <!-- <tbody>
+                              <tr class="success">
+                                <td class="bg-light-blue" scope="row" width="40px">
+                                  <a class="btn btn-primary btn-xs collapsed" data-toggle="collapse" href="#colls05051child1" role="button" aria-expanded="false" aria-controls="colls05051child1">
+                                    <i class="colls05051child1 fa fa-plus"></i>
+                                  </a>
+                                </td>
+
+                                <td class="bg-light-blue" width="110px">SERVICETYPE : </td>
+                                <td width="250px" style="padding-left:10px">10. Pelunasan Beban Kantor (24)</td>
+                                <td width="50px"><span class="badge bg-red">1</span></td>
+                                <td></td>
+                              </tr>
+                            </tbody> -->
+                          </table> 
+                                        
+                      <!--   <div class="collapse" id="colls05051child1">
+                            <div class="card card-body">
+                                <div class="table-responsive" style="overflow-x:true; width:100%"> -->
+                                  <!-- <table class="table table-bordered table-hover table-striped w-auto detil">
+                                      <thead>
+                                          <tr>
+                                              <th>INCIDENT</th>
+                                              <th style="padding: 0 50px">CASEOWNER</th>
+                                              <th>CASEOWNEREMAIL</th>
+                                              <th>COMPLAINANT</th>
+                                              <th>COMPLAINANTEMAIL</th>
+                                              <th style="padding: 0 100px">SUMMARY</th>
+                                              <th>SOURCE</th>             
+                                              <th>CALLTYPE</th>               
+                                              <th>STATUS</th>
+                                              <th>CREATEDBY</th>
+                                              <th>SERVICEFAMILY</th>
+                                              <th>SERVICEGROUP</th>
+                                              <th>SERVICETYPE</th>
+                                              <th> CAUSE </th>
+                                              <th> RESOLUTION </th>
+                                              <th> CREATEDBY </th>
+                                              <th> CREATEDON </th>
+                                              <th> RESOLVEDBY </th>
+                                              <th> RESOLVEDON </th>
+                                              <th> MODIFIEDBY </th>
+                                              <th> MODIFIEDON </th>
+                                              <th> CLOSEDBY </th>
+                                              <th> CLOSEDDATE </th>
+                                              <th> SLACLASS </th>
+                                              <th> SLALEVEL1 </th>
+                                              <th> SLALEVEL2 </th>
+                                              <th> SLALEVEL3 </th>
+                                              <th> PRIORITY </th>
+                                              <th> PRIORITYNAME </th>
+                                              <th> ASSIGNTO </th>
+                                              <th> FIRSTCALLRESOLUTION </th>
+                                              <th> ASSIGNEDON </th>
+                                          </tr>
+                                      </thead>
+                                      <tbody>
+                                          <tr>
+                                              <td>636245</td>
+                                              <td>LIDYA ESTER</td>
+                                              <td>LIDYA.ESTER@PLN.CO.ID</td>
+                                              <td>Maya Melinda</td>
+                                              <td>maya.melinda@pln.co.id</td>
+                                              <td>AP2T - 31 Permohonan Flagging Manual</td>
+                                              <td>Phone</td>             
+                                              <td>Service Request</td>               
+                                              <td>Active</td>
+                                              <td>puja.apria</td>
+                                              <td>05. AP2T</td>
+                                              <td>05. Penagihan Pendapatan</td>
+                                              <td>10. Pelunasan Beban Kantor (24)</td>
+                                              <td></td>
+                                              <td></td>
+                                              <td></td>
+                                              <td></td>
+                                              <td></td>
+                                              <td></td>
+                                              <td></td>
+                                              <td></td>
+                                              <td></td>
+                                              <td></td>
+                                              <td></td>
+                                              <td></td>
+                                              <td></td>
+                                              <td></td>
+                                              <td></td>
+                                              <td></td>
+                                              <td></td>
+                                              <td></td>
+                                              <td></td>
+                                          </tr>
+                                      </tbody>
+                                  </table> -->
+                    <!--             </div>                        
+                            </div>
+                        </div> 
+                     </div>
+                   </div> -->
 
 
-
-
-              <div id="tb_incident">
-
-
-
-
+                  </div>
+                </div><!-- /.row -->
+              <!-- <div id="tb_incident"> -->
               </div>
             </div>
 
@@ -390,13 +544,13 @@ $PESAN = $this->session->userdata('PESAN');
             y: <?php echo $family['TOTAL']; ?> ,
 
             color: {
-    //linearGradient: { x1: 0, x2: 0, y1: 0, y2: 1 },
-    radialGradient: { cx: 0.5, cy: 0.5, r: 0.5 },
-    stops: [
-    [0, 'YELLOW'],
-    [1, "<?php  echo $rs_warna[$i]; ?>"]
-    ]
-  },
+                    //linearGradient: { x1: 0, x2: 0, y1: 0, y2: 1 },
+                    radialGradient: { cx: 0.5, cy: 0.5, r: 0.5 },
+                    stops: [
+                    [0, 'YELLOW'],
+                    [1, "<?php  echo $rs_warna[$i]; ?>"]
+                    ]
+                  },
           //  color : "<?php  echo $rs_warna[$i]; ?>" ,
           events: {
             click: function() {
@@ -414,6 +568,74 @@ $PESAN = $this->session->userdata('PESAN');
 
      ]
    });
+
+
+// UNTUK MODAL DETAIL 
+function diagramDetail(dataDetail) {
+  var group = dataDetail['rs_tiket'].OUT_DATA_SERVICEGROUP;
+  group.sort(function(a, b){return b.RECORD - a.RECORD});
+  var warna = dataDetail['rs_warna'];;
+  var data_warna = [];
+  var data_array = [];
+
+  var i = 0;
+  group.forEach(function(value){
+      data_array.push({name: value.SERVICEGROUP, 
+                          y: parseInt(value.RECORD),
+                          color: {
+                    radialGradient: { cx: 0.5, cy: 0.5, r: 0.5 },
+                    stops: [
+                    [0, 'YELLOW'],
+                    [1, warna[i++]]
+                    ]
+                  }, 
+                      events: {
+                                click: function() {
+                                  // alert(value.SERVICEFAMILY, this.name);
+                                 modal_tabel(value.SERVICEFAMILY, this.name);
+                                }
+                              }
+                      });
+      
+  })  
+
+    Highcharts.chart('detail_chart', {
+      credits: {
+        enabled: false
+      },
+      chart: {
+        plotBackgroundColor: null,
+        plotBorderWidth: null,
+        plotShadow: false,
+        type: 'pie'
+      },
+      title: {
+        text: "DETAIL TIKET AKTIF PERTANGGAL  <?php echo $waktu_kemarin['tanggal'] . ' ' . strtoupper($waktu_kemarin['bulan']) . ' ' . $waktu_kemarin['tahun']; ?>"
+      },
+      tooltip: {
+        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+      },
+      plotOptions: {
+        pie: {
+          allowPointSelect: true,
+          cursor: 'pointer',
+          dataLabels: {
+            enabled: true,
+            format: '<b>{point.name}</b>: {y}',
+            style: {
+              color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+            },
+            connectorColor: 'silver'
+          }
+        }
+      },
+      series: [{
+        name: 'Persentase',
+        data: data_array
+     }
+     ]
+   });
+}
  </script>
 
 
@@ -479,6 +701,7 @@ $PESAN = $this->session->userdata('PESAN');
              events: {
                 click: function() {
                     modal_grafik(this.category);
+                    // alert ('Category: '+ this.category +', value: '+ this.y);
                 }
             }
         },

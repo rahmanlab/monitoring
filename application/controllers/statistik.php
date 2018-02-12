@@ -52,46 +52,23 @@ class statistik extends CI_Controller {
     }
 
 
+public function ajax_get_incident()
+    {
+        $family = $this->input->post('family');
+        $group = $this->input->post('group');
+        $params = array(
+            'SERVICEFAMILY' => $family,
+            'SERVICEGROUP' => $group, 
+            'SERVICETYPE' => '', 
+        );
 
-    // // LOAD DATA TABLE
-    // public function dokumen_load_params() {
-    //     $family = $this->input->post('family');
-    //     // get params
-    //     $family = empty($family) ? '' : "%".$family."%";
-    //     // parameter
-    //     $params = array($family);
-    //     $res = $this->mstatistik->get_list_by_family($params);
-    //     // get data
-    //     if (empty($res)) {
-    //         $output = array(
-    //             "data" => [],
-    //         );
-    //         echo json_encode($output);
-    //     } else {
-    //         $session_data['rs_ophar'] = $res;
-    //         $this->session->set_userdata($session_data);
-    //         foreach ($res as $data) {
-    //             $row = array();
-    //             $row[] = number_format($data['INCIDENT'], 0, '', '');
-    //             $row[] = $data['CASEOWNER'];
-    //             $row[] = $data['SLACLASS'];
-    //             $row[] = $data['SUMMARY'];
-    //             $row[] = $data['SERVICETYPE'];
-    //             $row[] = $data['CREATEDBY'];
-    //             $row[] = $data['CREATEDON'];
-    //             $row[] = $data['CLOSEDDATE'];
-    //             $row[] = $data['ASSIGNTO'];
-    //             $row[] = $data['ASSIGNEDON'];
-    //             $dataarray[] = $row;
-    //         }
-    //         $output = array(
-    //             "data" => $dataarray
-    //         );
-    //         echo json_encode($output);
-    //     }
-    // }
+        $res['rs_tiket'] = $this->mstatistik->get_pkg_detail_incident($params);
+        $res['rs_warna'] = $this->mstatistik->get_warna();               
+
+        echo json_encode($res);
+    }
     // get data detail h-1
-    public function ajax_get_incident() {
+public function ajax_get_incident_backup() {
         // set page rules
         // get data id
         $family = $this->input->post('family');
@@ -563,176 +540,6 @@ class statistik extends CI_Controller {
         echo $html;
     }
 
-
-    // get data diklat
-     public function ajax_get_incident_backup() {
-        // set page rules
-        // get data id
-        $family = $this->input->post('family');
-
-        // ---------------------------------------- Grid 1  Start ----------------------------------- //
-        $params = array(
-            'SERVICEFAMILY' => $family,
-            'SERVICEGROUP' => '', 
-            'SERVICETYPE' => '', 
-        );
-         $data = $this->mstatistik->get_pkg_detail_incident($params);
-         // BUILD HTML
-
-        // table
-        $html = '';
-
-        $no = 1;
-        if (count($data) > 0) {
-            foreach ($data['OUT_DATA_SERVICEGROUP'] AS $item) {
-
-                //$id_collapse = 'collapse' . substr($item['SERVICEGROUP'], 0,2);
-                $id_collapse = 'colls' . substr($item['SERVICEFAMILY'], 0,2)  . substr($item['SERVICEGROUP'], 0,2) .$no++ ;
-         $html .= '
-
-                <table class="table table-responsive w-auto">
-                    <tbody>
-
-                      <tr class="success">
-                        <td scope="row" width="30px">
-                          <a class="btn btn-primary btn-xs collapsed" data-toggle="collapse" href="#'.$id_collapse.'" role="button"   aria-expanded="false" aria-controls="'.$id_collapse.'">
-                            <i class="fa fa-plus"></i>
-                          </a>
-                        </td>
-                        <td width="100px">' . $item['SERVICEFAMILY'] . '</td>
-                        <td width="100px">' . $item['SERVICEGROUP'] . '</td>
-                        <td width="50px"><span class="badge bg-light-blue">' . $item['RECORD'] . '</span></td>
-                      </tr>
-                      <tr class="success">
-                        <td colspan="4">
-                          <div class="collapse" id="'.$id_collapse.'">
-                            <div class="card card-body">';
-        // ---------------------------------------- Grid 2  Start ----------------------------------- //
-        $params = array(
-            'SERVICEFAMILY' => $item['SERVICEFAMILY'],
-            'SERVICEGROUP' => $item['SERVICEGROUP'], 
-            'SERVICETYPE' => '', 
-        );
-         $data = $this->mstatistik->get_pkg_detail_incident($params);                    
-                              
-        $no2 = 1;
-        if (count($data) > 0) {
-            foreach ($data['OUT_DATA_SERVICETYPE'] AS $item) {
-
-                $id_collapse = $id_collapse .'child'. $no2++;
-                $html .= '
-                                <table class="table table-responsive w-auto">
-                                <tbody>
-                                  <tr class="success">
-                                    <td scope="row">
-                                      <a class="btn btn-primary btn-xs collapsed" data-toggle="collapse" href="#'.$id_collapse.'" role="button"   aria-expanded="false" aria-controls="'.$id_collapse.'">
-                                        <i class="fa fa-plus"></i>
-                                      </a>
-                                    </td>
-                                    <td>' . $item['SERVICEFAMILY'] . '</td>
-                                    <td>' . $item['SERVICEGROUP'] . '</td>
-                                    <td>' . $item['SERVICETYPE'] . '</td>
-                                    <td>' . $item['RECORD'] . '</td>
-                                  </tr>
-                                  <tr class="success">
-                                    <td colspan="4">
-                                      <div class="collapse" id="'.$id_collapse.'">
-                                        <div class="card card-body">
-                                        ';
-
-
-                                        // ---------------------------------------- Grid 3  Start ----------------------------------- //
-                            $params = array(
-                                'SERVICEFAMILY' => $item['SERVICEFAMILY'],
-                                'SERVICEGROUP' => $item['SERVICEGROUP'], 
-                                'SERVICETYPE' => $item['SERVICETYPE'], 
-                            );
-                             $data = $this->mstatistik->get_pkg_detail_incident($params);                    
-                                                  
-                            $no = 1;
-                            if (count($data) > 0) {
-                                foreach ($data['OUT_DATA_INCIDENT'] AS $item) {
-
-                                    $html .= '
-                                                    <table class="table table-responsive w-auto">
-                                                    <tbody>
-                                                      <tr class="success">
-                                                        
-                                                        <td>' . $item['INCIDENT'] . '</td>
-                                                        <td>' . $item['SERVICEFAMILY'] . '</td>
-                                                        <td>' . $item['SERVICEGROUP'] . '</td>
-                                                        <td>' . $item['CREATEDON'] . '</td>
-                                                      </tr>
-                                                      <tr class="success">
-                                                        <td colspan="4">
-                                                          <div class="collapse" id="collapseExample">
-                                                            <div class="card card-body">
-
-                                                              sdsd
-                                                              
-                                                            </div>
-                                                          </div>
-                                                        </td>
-                                                      </tr>
-                                                    </tbody>
-
-                                                  </table> ';
-
-                                }
-                            } else {
-                                $html .= '<table>';
-                                $html .= '<tr>';
-                                $html .= '<td colspan="4">data tida ditemukan!</td>';
-                                $html .= '</tr>';
-                                $html .= '</table>';
-                            }
-    // ---------------------------------------- Grid 3  End ----------------------------------- //
-
-
-                $html .='                        
-                                          
-                                        </div>
-                                      </div>
-                                    </td>
-                                  </tr>
-                                </tbody>
-
-                              </table> ';
-
-            }
-        } else {
-            $html .= '<table>';
-            $html .= '<tr>';
-            $html .= '<td colspan="4">data tida ditemukan!</td>';
-            $html .= '</tr>';
-            $html .= '</table>';
-        }
-    // ---------------------------------------- Grid 2  End ----------------------------------- //
-        $html .= '
-
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
-                    </tbody>
-
-                  </table>
-
-         ';
-
-            }
-        } else {
-            $html .= '<table>';
-            $html .= '<tr>';
-            $html .= '<td colspan="4">data tida ditemukan!</td>';
-            $html .= '</tr>';
-            $html .= '</table>';
-        }
-        // ---------------------------------------- Grid 1  End ----------------------------------- //
-
-
-        echo $html;
-    }
 
     
     public function harian() {
