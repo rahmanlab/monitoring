@@ -56,7 +56,8 @@ function modal_family(family) {
               success: function (data) {
                 $('#loading_modal').modal('hide');
                   var tabelDetail = JSON.parse(data);
-                  var jancuk = tabelDetail['rs_tiket'].OUT_DATA_SERVICETYPE 
+                  var jancuk = tabelDetail['rs_tiket'].OUT_DATA_SERVICETYPE;
+                  $("#head h3").empty();
                   $("#tabel_detail tbody").empty();
                     if(jancuk == ""){
                       var strRow ='<tr><td><div class="alert alert-danger"> Data Tidak Tersedia...! </div></td></tr>';
@@ -140,6 +141,9 @@ function modal_family(family) {
     </script>
 
     <style type="text/css">
+    .f38{
+      font-size: 38px;
+    }
     .w-auto{
 
       margin-bottom: 2px;
@@ -230,7 +234,7 @@ function modal_family(family) {
               <span class="info-box-icon bg-aqua"><i class="fa fa-envelope-o"></i></span>
               <div class="info-box-content">
                 <span class="info-box-text">Total Tiket</span>
-                <span class="info-box-number"><?php echo $total_tiket;?></span>
+                <span class="info-box-number f38"><?php echo $total_tiket;?></span>
               </div><!-- /.info-box-content -->
             </div><!-- /.info-box -->
           </div><!-- /.col -->
@@ -239,7 +243,7 @@ function modal_family(family) {
               <span class="info-box-icon bg-red"><i class="fa fa-file-text-o"></i></span>
               <div class="info-box-content">
                 <span class="info-box-text">Tiket Aktif </span>
-                <span class="info-box-number"><?php echo $tiket_aktif;?></span>
+                <span class="info-box-number f38"><?php echo $tiket_aktif;?></span>
               </div><!-- /.info-box-content -->
             </div><!-- /.info-box -->
           </div><!-- /.col -->
@@ -250,7 +254,7 @@ function modal_family(family) {
               <span class="info-box-icon bg-green"><i class="fa fa-check-square-o"></i></span>
               <div class="info-box-content">
                 <span class="info-box-text">Tiket Resolved</span>
-                <span class="info-box-number"><?php echo $tiket_resolved;?></span>
+                <span class="info-box-number f38"><?php echo $tiket_resolved;?></span>
               </div><!-- /.info-box-content -->
             </div><!-- /.info-box -->
           </div><!-- /.col -->
@@ -335,122 +339,6 @@ function modal_family(family) {
                       <table class="table table-bordered" id="tabel_detail">
                         <tbody></tbody>
                       </table> 
-
-                    </div>
-                    <!-- <table class="table table-responsive w-auto">
-                      <thead>
-                        <tr style="border-bottom-style: none; border-top-style: none; background-color: #3C8DBC;">
-                          <th style="padding: 3px 10px"> #SERVICEGROUP : Pelayanan Pelanggan</th>
-                          <th></th>
-                          <th></th>
-                          <th></th>
-                        </tr>
-                      </thead>
-                    </table> -->
-
-                    <!-- <div class="collapse in" id="colls05051" aria-expanded="true" style="">
-                       <div class="card card-body">
-                          <table class="table table-responsive w-auto" id="tabel_detail"> -->
-                            <!-- <tbody>
-                              <tr class="success">
-                                <td class="bg-light-blue" scope="row" width="40px">
-                                  <a class="btn btn-primary btn-xs collapsed" data-toggle="collapse" href="#colls05051child1" role="button" aria-expanded="false" aria-controls="colls05051child1">
-                                    <i class="colls05051child1 fa fa-plus"></i>
-                                  </a>
-                                </td>
-
-                                <td class="bg-light-blue" width="110px">SERVICETYPE : </td>
-                                <td width="250px" style="padding-left:10px">10. Pelunasan Beban Kantor (24)</td>
-                                <td width="50px"><span class="badge bg-red">1</span></td>
-                                <td></td>
-                              </tr>
-                            </tbody> -->
-                          </table> 
-                                        
-                      <!--   <div class="collapse" id="colls05051child1">
-                            <div class="card card-body">
-                                <div class="table-responsive" style="overflow-x:true; width:100%"> -->
-                                  <!-- <table class="table table-bordered table-hover table-striped w-auto detil">
-                                      <thead>
-                                          <tr>
-                                              <th>INCIDENT</th>
-                                              <th style="padding: 0 50px">CASEOWNER</th>
-                                              <th>CASEOWNEREMAIL</th>
-                                              <th>COMPLAINANT</th>
-                                              <th>COMPLAINANTEMAIL</th>
-                                              <th style="padding: 0 100px">SUMMARY</th>
-                                              <th>SOURCE</th>             
-                                              <th>CALLTYPE</th>               
-                                              <th>STATUS</th>
-                                              <th>CREATEDBY</th>
-                                              <th>SERVICEFAMILY</th>
-                                              <th>SERVICEGROUP</th>
-                                              <th>SERVICETYPE</th>
-                                              <th> CAUSE </th>
-                                              <th> RESOLUTION </th>
-                                              <th> CREATEDBY </th>
-                                              <th> CREATEDON </th>
-                                              <th> RESOLVEDBY </th>
-                                              <th> RESOLVEDON </th>
-                                              <th> MODIFIEDBY </th>
-                                              <th> MODIFIEDON </th>
-                                              <th> CLOSEDBY </th>
-                                              <th> CLOSEDDATE </th>
-                                              <th> SLACLASS </th>
-                                              <th> SLALEVEL1 </th>
-                                              <th> SLALEVEL2 </th>
-                                              <th> SLALEVEL3 </th>
-                                              <th> PRIORITY </th>
-                                              <th> PRIORITYNAME </th>
-                                              <th> ASSIGNTO </th>
-                                              <th> FIRSTCALLRESOLUTION </th>
-                                              <th> ASSIGNEDON </th>
-                                          </tr>
-                                      </thead>
-                                      <tbody>
-                                          <tr>
-                                              <td>636245</td>
-                                              <td>LIDYA ESTER</td>
-                                              <td>LIDYA.ESTER@PLN.CO.ID</td>
-                                              <td>Maya Melinda</td>
-                                              <td>maya.melinda@pln.co.id</td>
-                                              <td>AP2T - 31 Permohonan Flagging Manual</td>
-                                              <td>Phone</td>             
-                                              <td>Service Request</td>               
-                                              <td>Active</td>
-                                              <td>puja.apria</td>
-                                              <td>05. AP2T</td>
-                                              <td>05. Penagihan Pendapatan</td>
-                                              <td>10. Pelunasan Beban Kantor (24)</td>
-                                              <td></td>
-                                              <td></td>
-                                              <td></td>
-                                              <td></td>
-                                              <td></td>
-                                              <td></td>
-                                              <td></td>
-                                              <td></td>
-                                              <td></td>
-                                              <td></td>
-                                              <td></td>
-                                              <td></td>
-                                              <td></td>
-                                              <td></td>
-                                              <td></td>
-                                              <td></td>
-                                              <td></td>
-                                              <td></td>
-                                              <td></td>
-                                          </tr>
-                                      </tbody>
-                                  </table> -->
-                    <!--             </div>                        
-                            </div>
-                        </div> 
-                     </div>
-                   </div> -->
-
-
                   </div>
                 </div><!-- /.row -->
               <!-- <div id="tb_incident"> -->
