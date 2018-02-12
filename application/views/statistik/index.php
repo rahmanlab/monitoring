@@ -62,15 +62,15 @@ function modal_family(family) {
                       var strRow ='<tr><td><div class="alert alert-danger"> Data Tidak Tersedia...! </div></td></tr>';
                       $("#tabel_detail tbody").append(strRow);
                     }else{
+                        $("#head h3").append(group);
                         $.each(jancuk, function(index, itemData) {
                         var strRow =
                           '<tr>' +
-                            '<td style="color:black">' + itemData.SERVICEFAMILY + '</td>' +
-                            '<td style="color:black">' + itemData.SERVICEGROUP + '</td>' +
                             '<td style="color:black">' + itemData.SERVICETYPE + '</td>' +
-                            '<td style="color:black">' + itemData.RECORD + '</td>' +
+                            '<td style="color:black"><span class="badge bg-yellow">' + itemData.RECORD + '</span></td>' +
                            '</tr>';
                         $("#tabel_detail tbody").append(strRow);
+
                       });
                     }
               }
@@ -329,8 +329,10 @@ function modal_family(family) {
                     </div><!-- ./chart-responsive -->
                   </div><!-- /.col -->
                   <div class="col-md-5">
-                      <table class="table-bordered" id="tabel_detail">
-                        <thead></thead>
+                    <div class="box-header" id="head">
+                      <h3></h3>
+                    </div>
+                      <table class="table table-bordered" id="tabel_detail">
                         <tbody></tbody>
                       </table> 
 
