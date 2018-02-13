@@ -69,7 +69,10 @@ function modal_family(family) {
                         var strRow =
                           '<tr>' +
                             '<td style="color:black">' + itemData.SERVICETYPE + '</td>' +
-                            '<td style="color:black"><span class="badge bg-yellow">' + itemData.RECORD + '</span></td>' +
+                            '<td style="color:black"><button class="btn bg-orange" ' + 
+                            'onclick="detail_tiket_click(\''+itemData.SERVICEFAMILY+'\',\''+itemData.SERVICEGROUP+'\',\''+itemData.SERVICETYPE+'\')">' + 
+                            itemData.RECORD + 
+                            '</button></td>' +
                            '</tr>';
                         $("#tabel_detail tbody").append(strRow);
 
@@ -137,15 +140,37 @@ function modal_family(family) {
       });
      }
 
-      // function changeIconGrid2(id_collapse2) {
-      //  // alert('Id = ' + id_collapse);
-      //   $("#" + id_collapse2).on('shown.bs.collapse', function() {
-      //     $("." + id_collapse2).addClass('fa-minus').removeClass('fa-plus');
-      //   });
-      //   $("#" + id_collapse2).on('hidden.bs.collapse', function() {
-      //     $("." + id_collapse2).addClass('fa-plus').removeClass('fa-minus');
-      //   });
-      // }
+
+     function detail_tiket_click(family, group, type){
+        document.getElementById("judul_header_detail").innerHTML = "DETAIL TIKET : "+type;
+
+        $("#tb_incident_detail").html('<div></div>');
+
+
+        var url = "<?php echo base_url('statistik/ajax_get_detail') ?>";
+        //var bidang_id = $(this).prop("lang");
+        $.ajax({
+          type: "POST",
+          url: url,
+          dataType: "html",
+          data: {
+            family : family,
+            group : group,
+            type : type
+          },
+          beforeSend: function () {
+                // non removable loading
+                $('#loading_modal').modal({
+                  backdrop: 'static', keyboard: false
+                });
+              },
+              success: function (data) {
+                $('#loading_modal').modal('hide');
+                $("#tb_incident_detail").html(data);
+                $('#modal_detail').modal('show');
+              }
+            });
+     }
 
     </script>
 
@@ -352,7 +377,6 @@ function modal_family(family) {
                   </div>
                 </div><!-- /.row -->
             </div>
-
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
@@ -362,6 +386,30 @@ function modal_family(family) {
       </div>
       <!-- /.modal-dialog -->
     </div>
+
+
+<div class="modal fade modal-primary" id="modal_detail">
+    <div class="modal-dialog modal-lg" style="width: 95%; margin-top: 10%;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="judul_header_detail"></h4>
+          </div>
+          <div class="modal-body" style="background-color: #FFF !important">
+            <div class="box-body scroll-y">
+              <div id="tb_incident_detail"></div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+        <!-- /.modal-content -->
+      </div>
+      <!-- /.modal-dialog -->
+    </div>
+
 
     <div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" id="loading_modal">
       <div class="modal-dialog modal-sm" role="document">
