@@ -28,6 +28,7 @@ function modal_family(family) {
                   diagramDetail(dataDetail);
                   // console.log(dataDetail.OUT_DATA_SERVICEGROUP);
                 // $("#tb_incident").html(data);
+                $("#head h3").empty();
                 $("#tabel_detail tbody").empty();
                 $('#modal_family').modal('show');
               }
@@ -81,6 +82,9 @@ function modal_family(family) {
   function modal_grafik(family) {
     document.getElementById("judul_header").innerHTML = "DETAIL TIKET "+family;
 
+    $("#head h3").empty();
+    $("#tabel_detail tbody").empty();
+    $("#detail_chart").empty();
     $("#tb_incident").html('<div></div>');
     var url = "<?php echo base_url('statistik/ajax_get_incident_total') ?>";
         //var bidang_id = $(this).prop("lang");
@@ -99,7 +103,12 @@ function modal_family(family) {
               },
               success: function (data) {
                 $('#loading_modal').modal('hide');
-                $("#tb_incident").html(data);
+                  var dataDetail = JSON.parse(data);
+                  // console.log(dataDetail);
+                  diagramDetail(dataDetail);
+                   $("#head h3").empty();
+                $("#tabel_detail tbody").empty();
+                // $("#tb_incident").html(data);
                 $('#modal_family').modal('show');
               }
             });
@@ -325,14 +334,15 @@ function modal_family(family) {
           </div>
           <div class="modal-body" style="background-color: #FFF !important">
             <div class="box-body scroll-y">
+              <!-- <div id="tb_incident"></div> -->
               <div class="row">
-                  <div class="col-md-7">
+                  <div class="col-sm-7">
                     <div class="chart-responsive">
                       <div id="detail_chart" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
                       <!-- <canvas id="pieChart" height="150"></canvas> -->
                     </div><!-- ./chart-responsive -->
                   </div><!-- /.col -->
-                  <div class="col-md-5">
+                  <div class="col-sm-5">
                     <div class="box-header" id="head">
                       <h3></h3>
                     </div>
@@ -341,8 +351,6 @@ function modal_family(family) {
                       </table> 
                   </div>
                 </div><!-- /.row -->
-              <!-- <div id="tb_incident"> -->
-              </div>
             </div>
 
           </div>

@@ -305,7 +305,22 @@ public function ajax_get_incident_backup() {
 
 
 // UNTUK DETAIL GRAFIK
-    public function ajax_get_incident_total() {
+    public function ajax_get_incident_total()
+    {
+        $family = $this->input->post('family');
+        $group = $this->input->post('group');
+        $params = array(
+            'SERVICEFAMILY' => $family,
+            'SERVICEGROUP' => $group, 
+            'SERVICETYPE' => '', 
+        );
+        $res['rs_tiket'] = $this->mstatistik->get_pkg_detail_incident_total($params);
+        $res['rs_warna'] = $this->mstatistik->get_warna();               
+
+        echo json_encode($res);
+    }
+
+    public function ajax_get_incident_total_awal() {
         // set page rules
         // get data id
         $family = $this->input->post('family');
