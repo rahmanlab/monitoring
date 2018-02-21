@@ -794,22 +794,20 @@ public function ajax_get_detail() {
         //$data['bulan'] = empty($data['bulan']) ? date('Y') : $data['bulan'];
         $blth = $data['search']['tahun'].$data['search']['bulan'];
 
+        $rs_tiket = $this->mstatistik->get_pkg_incident_perbulan($blth);
 
-        $data['rs_total_tiket'] = $this->mstatistik->get_list_bulanan_total($blth);
-        $data['rs_tiket_sla'] = $this->mstatistik->get_list_sla_bulanan($blth);
-        // print_r($data['rs_tiket_sla']); exit();
-        $data['total_tiket'] = $this->mstatistik->get_total_tiket_bulanan($blth);
-        $data['tiket_oversla'] = $this->mstatistik->get_tiket_oversla_bulanan($blth);
-        $data['tiket_resolved'] = $this->mstatistik->get_tiket_resolved_bulanan($blth);
-        $data['rs_tiket_bulanan'] = $this->mstatistik->get_jml_tiket_bulanan($data['search']['tahun']);
-        //print_r($data['total_tiket']);exit();
-
+        $data['rs_total_tiket'] = $rs_tiket['OUT_DATA_TOTAL_TIKET'];
+        $data['rs_tiket_sla'] = $rs_tiket['OUT_DATA_LIST_SLA'];
+        $data['total_tiket'] = $rs_tiket['OUT_TIKET_TOTAL'];
+        $data['tiket_oversla'] = $rs_tiket['OUT_TIKET_OVERSLA'];
+        $data['tiket_resolved'] = $rs_tiket['OUT_TIKET_RESOLVED'];
+        $data['rs_tiket_bulanan'] = $rs_tiket['OUT_DATA_TIKET_BY_BULAN'];
         $data['rs_bulan'] = $this->datetimemanipulation->get_list_month();
         $data['rs_tahun'] = $this->mstatistik->get_list_tahun();
         $data['waktu_sekarang'] = $this->datetimemanipulation->get_date_now();
 
 
-       // print_r($data['rs_jml_pertransaksi']); exit();
+       // print_r($rs_tiket); exit();
         $this->load->view('home', $data);
     }
 

@@ -154,92 +154,6 @@ public function get_total_tiket() {
         
     }
 
-    // Grafik Total tiket bulanan
-    public function get_list_bulanan_total($params) {
-        $sql = "Select  a.SERVICEFAMILY , count(*) as total
-        FROM faisallubis.TIKET_ITSM_HISTO a where 
-        to_char(a.CREATEDON, 'yyyymm') = ? group by a.SERVICEFAMILY
-        ";
-        $query = $this->db->query($sql,$params);
-
-
-        if ($query->num_rows() > 0) {
-            $result = $query->result_array();
-            $query->free_result();
-            return $result;
-        } else {
-            return NULL;
-        }
-    }
-    // Grafik Total tiket SLA bulanan
-    public function get_list_sla_bulanan($params) {
-        $sql = "select SERVICEFAMILY, count(*) as total_sla FROM faisallubis.TIKET_ITSM_HISTO
-        where to_char(CREATEDON, 'yyyymm') = ? 
-        and to_char(RESOLVEDON, 'yyyymmdd') > to_char(SLALEVEL1, 'yyyymmdd')
-        or to_char(RESOLVEDON, 'yyyymmdd') > to_char(SLALEVEL2, 'yyyymmdd') 
-        or to_char(RESOLVEDON, 'yyyymmdd') > to_char(SLALEVEL3, 'yyyymmdd')
-        group by SERVICEFAMILY
-        ";
-        $query = $this->db->query($sql,$params);
-
-
-        if ($query->num_rows() > 0) {
-            $result = $query->result_array();
-            $query->free_result();
-            return $result;
-        } else {
-            return NULL;
-        }
-    }
-
-    // GET TOTAL TIKET BULANAN
-    public function get_total_tiket_bulanan($params) {
-        $sql = "SELECT COUNT(*) TOTAL_TIKET FROM FAISALLUBIS.TIKET_ITSM_HISTO 
-        WHERE TO_CHAR(CREATEDON, 'YYYYMM') = ?
-        ";
-        $query = $this->db->query($sql,$params);
-        if ($query->num_rows() > 0) {
-            $result = $query->row_array();
-            $query->free_result();
-            return $result['TOTAL_TIKET'];
-        } else {
-            return 0;
-        }
-    }
-    // GET TOTAL TIKET BULANAN
-    public function get_tiket_oversla_bulanan($params) {
-        $sql = "SELECT COUNT(*) TOTAL_SLA FROM FAISALLUBIS.TIKET_ITSM_HISTO
-        WHERE TO_CHAR(CREATEDON, 'YYYYMM') = ? AND  
-        TO_CHAR(RESOLVEDON, 'MM/DD/YYYY') > TO_CHAR(SLALEVEL1, 'MM/DD/YYYY')
-        OR TO_CHAR(RESOLVEDON, 'MM/DD/YYYY') > TO_CHAR(SLALEVEL2, 'MM/DD/YYYY') 
-        OR TO_CHAR(RESOLVEDON, 'MM/DD/YYYY') > TO_CHAR(SLALEVEL3, 'MM/DD/YYYY')
-        ";
-        $query = $this->db->query($sql,$params);
-        if ($query->num_rows() > 0) {
-            $result = $query->row_array();
-            $query->free_result();
-            return $result['TOTAL_SLA'];
-        } else {
-            return NULL;
-        }
-    }
-    // GET TOTAL TIKET BULANAN
-    public function get_tiket_resolved_bulanan($params) {
-        $sql = "SELECT COUNT(*) TOTAL_RS FROM FAISALLUBIS.TIKET_ITSM_HISTO WHERE 
-        TO_CHAR(CREATEDON, 'YYYYMM') = ? AND
-        STATUS = 'Resolved'
-        ";
-        $query = $this->db->query($sql,$params);
-        if ($query->num_rows() > 0) {
-            $result = $query->row_array();
-            $query->free_result();
-            return $result['TOTAL_RS'];
-        } else {
-            return NULL;
-        }
-    }
-
-
 
 
 
@@ -266,24 +180,6 @@ public function get_total_tiket() {
             return $result['TOTAL_SUPPORT'];
         } else {
             return NULL;
-        }
-    }
-
-    // GET TOTAL SUPPORT
-    public function get_jml_tiket_bulanan($params) {
-        $sql = "SELECT TO_CHAR(CREATEDON, 'MM') AS BULAN, COUNT(*) AS TIKET_PERBULAN 
-        FROM faisallubis.TIKET_ITSM_HISTO
-        WHERE TO_CHAR(CREATEDON,'YYYY') = ?
-        GROUP BY TO_CHAR(CREATEDON, 'MM')
-        ORDER BY BULAN ASC
-        ";
-        $query = $this->db->query($sql, $params);
-        if ($query->num_rows() > 0) {
-            $result = $query->result_array();
-            $query->free_result();
-            return $result;
-        } else {
-            return array();
         }
     }
 
@@ -783,7 +679,50 @@ public function get_total_tiket() {
         return $results;
     }
 
+    // DATA STATISTIK PERBULAN
+    public function get_pkg_incident_perbulan($blth){
+        $msg_out = '';
+        $results = '';
+        $this->pblmig_db = $this->load->database('pblmig', true);
+        if (!$this->pblmig_db) {
+            $m = oci_error();
+            trigger_error(htmlentities($m['message']), E_USER_ERROR);
+        }
 
+        $stid = oci_parse($this->pblmig_db->conn_id, 'begin OPHARAPP.PKG_TESTING.GET_DATA_INCIDENT_PERBULAN(:IN_BLTH, :OUT_DATA_TOTAL_TIKET, :OUT_DATA_LIST_SLA, :OUT_DATA_TIKET_BY_BULAN, :OUT_TIKET_TOTAL, :OUT_TIKET_OVERSLA, :OUT_TIKET_RESOLVED, :OUT_MESSAGE); end;');
+        $OUT_DATA_TOTAL_TIKET = oci_new_cursor($this->pblmig_db->conn_id);
+        $OUT_DATA_LIST_SLA = oci_new_cursor($this->pblmig_db->conn_id);
+        $OUT_DATA_TIKET_BY_BULAN = oci_new_cursor($this->pblmig_db->conn_id);
+
+        //Send parameters variable  value  lenght
+        oci_bind_by_name($stid, ':IN_BLTH', $blth) or die('Error binding IN_BLTH');
+        oci_bind_by_name($stid, ':OUT_DATA_TOTAL_TIKET', $OUT_DATA_TOTAL_TIKET,-1, OCI_B_CURSOR) or die('Error bind OUT_DATA');
+        oci_bind_by_name($stid, ':OUT_DATA_LIST_SLA', $OUT_DATA_LIST_SLA,-1, OCI_B_CURSOR) or die('Error binding OUT_DATA');
+        oci_bind_by_name($stid, ':OUT_DATA_TIKET_BY_BULAN', $OUT_DATA_TIKET_BY_BULAN,-1, OCI_B_CURSOR) or die('Error binding OUT_DATA');
+        oci_bind_by_name($stid, ':OUT_TIKET_TOTAL', $results['OUT_TIKET_TOTAL'],100, SQLT_CHR) or die('Error binding total');
+        oci_bind_by_name($stid, ':OUT_TIKET_OVERSLA', $results['OUT_TIKET_OVERSLA'],100, SQLT_CHR) or die('Error binding oversla');
+        oci_bind_by_name($stid, ':OUT_TIKET_RESOLVED', $results['OUT_TIKET_RESOLVED'],100, SQLT_CHR) or die('Error binding resolved');
+        oci_bind_by_name($stid, ':OUT_MESSAGE', $msg_out,100, SQLT_CHR) or die('Error binding Message');
+        //Bind Cursor     put -1
+        $func_result = oci_execute($stid);
+        if($func_result){
+            oci_execute($OUT_DATA_TOTAL_TIKET, OCI_DEFAULT);
+            oci_execute($OUT_DATA_LIST_SLA, OCI_DEFAULT);
+            oci_execute($OUT_DATA_TIKET_BY_BULAN, OCI_DEFAULT);
+            oci_fetch_all($OUT_DATA_TOTAL_TIKET, $results['OUT_DATA_TOTAL_TIKET'], null, null, OCI_FETCHSTATEMENT_BY_ROW);
+            oci_fetch_all($OUT_DATA_LIST_SLA, $results['OUT_DATA_LIST_SLA'], null, null, OCI_FETCHSTATEMENT_BY_ROW);
+            oci_fetch_all($OUT_DATA_TIKET_BY_BULAN, $results['OUT_DATA_TIKET_BY_BULAN'], null, null, OCI_FETCHSTATEMENT_BY_ROW);
+            //$results = $cursor;
+        }else{
+            $e = oci_error($stid);
+            $results =  $e['message'];
+        } 
+        oci_free_statement($stid);
+        oci_close($this->pblmig_db->conn_id);
+
+        return $results;
+
+    }
 
 // </editor-fold>
 
